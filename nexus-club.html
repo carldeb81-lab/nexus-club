@@ -1161,3 +1161,41 @@ function startNPCAnimations() {
   }, 3500);
   setInterval(() => {
     const npcs = Object.values(state.users).filter(u => u.isNPC);
+	    if (!npcs.length) return;
+    if (Math.random() < 0.2) { const npc = rand(npcs); const oldRoom = npc.room; const newRoom = rand(ROOMS).id; if (oldRoom !== newRoom) { npc.room = newRoom; npc.liked = false; renderRoomTabs(); positionAndRender(); updateVibe(); } }
+  }, 15000);
+}
+
+window.addEventListener('beforeunload', () => {
+  if (state.user) { broadcast({ type: 'leave', userId: state.user.id }); const r = state.rooms[state.user.room]; if (r && r.djId === state.user.id) broadcast({ type: 'dj', roomId: state.user.room, userId: null }); }
+});
+
+(function init() {
+  renderLogin();
+  restoreUser();
+  $('enter-btn').addEventListener('click', enterClub);
+  $('nickname').addEventListener('keydown', (e) => { if (e.key === 'Enter') enterClub(); });
+  $('like-btn').addEventListener('click', toggleLike);
+  $('become-dj').addEventListener('click', becomeDJ);
+  $('leave-dj').addEventListener('click', () => { stopVideo(); leaveDJ(); });
+  $('play-track').addEventListener('click', playTrackAsDJ);
+  $('stop-track').addEventListener('click', () => { const room = currentRoom(); if (room.djId !== state.user?.id) return; stopVideo(); broadcast({ type: 'stop', roomId: state.currentRoom }); });
+  $('yt-url').addEventListener('keydown', (e) => { if (e.key === 'Enter') playTrackAsDJ(); });
+  $('chat-send').addEventListener('click', sendChatMessage);
+  $('chat-input').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); } });
+  $('chat-input').addEventListener('input', (e) => { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 80) + 'px'; });
+  $('chat-toggle').addEventListener('click', toggleChat);
+  if (window.innerWidth > 900) { state.chatOpen = true; $('chat-panel').classList.add('open'); }
+  buildFleurDeVie();
+  buildGraineDeVie();
+  buildMetatron();
+  buildParticles(22);
+  buildWaves(3);
+  activateMotifForHz(432);
+  updateLikeBtn();
+  applyRoomTheme();
+  const waitYT = setInterval(() => { if (window.YT && window.YT.Player) { clearInterval(waitYT); state.ytReady = true; if (state.user) initYTPlayer(); } }, 300);
+})();
+</script>
+</body>
+</html>
