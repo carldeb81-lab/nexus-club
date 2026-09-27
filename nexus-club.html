@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Nexus Club — 5 Salles</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root {
+  --neon-pink: #ff2e88; --neon-cyan: #00e5ff; --neon-purple: #b026ff;
+  --neon-green: #00ff9d; --neon-gold: #ffd400; --bg-dark: #06010f;
+  --panel: rgba(20, 8, 40, 0.85); --border: rgba(176, 38, 255, 0.35);
+  --ink: #f5eaff; --ink-dim: #a48ec4;
+  --room-primary: #b026ff;
+  --room-secondary: #ff2e88;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: var(--bg-dark); color: var(--ink); min-height: 100vh;
+  font-size: 15px; overflow-x: hidden;
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(176,38,255,0.25), transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(255,46,136,0.2), transparent 50%);
+  background-attachment: fixed;
+}
+.hidden { display: none !important; }
+#login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem 1rem; }
+.login-card {
+  width: 100%; max-width: 520px; background: var(--panel);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border); border-radius: 20px; padding: 1.8rem 1.4rem;
+  box-shadow: 0 0 60px rgba(176,38,255,0.35);
+  animation: cardIn 0.6s ease;
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(20px) scale(0.96); } to { opacity: 1; transform: none; } }
+.logo-main {
+  font-size: 1.7rem; font-weight: 800; letter-spacing: 0.12em; text-align: center;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink), var(--neon-purple));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.logo-sub { text-align: center; font-size: 0.7rem; color: var(--ink-dim); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.3rem; margin-bottom: 1.6rem; }
+.field-label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-dim); margin-bottom: 0.5rem; font-weight: 600; }
+#nickname { width: 100%; padding: 0.85rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: rgba(0,0,0,0.4); color: var(--ink); font-family: inherit; font-size: 1rem; margin-bottom: 1.2rem; }
+#nickname:focus { outline: none; border-color: var(--neon-cyan); box-shadow: 0 0 20px rgba(0,229,255,0.35); }
+.room-picker-login { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.35rem; margin-bottom: 1.2rem; }
+.room-btn-login { padding: 0.6rem 0.2rem; border-radius: 12px; border: 2px solid var(--border); background: rgba(0,0,0,0.5); color: var(--ink); font-family: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; transition: all 0.2s; font-size: 0.55rem; font-weight: 600; }
+.room-btn-login .r-emoji { font-size: 1.25rem; }
+.room-btn-login:hover { transform: translateY(-2px); }
+.room-btn-login.selected { transform: translateY(-2px); }
+.race-picker { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1.2rem; max-height: 320px; overflow-y: auto; padding: 0.3rem; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+.race-picker::-webkit-scrollbar { width: 6px; }
+.race-picker::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.race-section-title { grid-column: 1 / -1; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--neon-cyan); font-weight: 700; padding: 0.4rem 0 0.2rem; border-bottom: 1px solid var(--border); margin-bottom: 0.3rem; }
+.race-section-title.alien { color: var(--neon-pink); }
+.race-section-title.ai { color: var(--neon-gold); }
+.race-btn { aspect-ratio: 1; border-radius: 12px; border: 2px solid transparent; background: rgba(0,0,0,0.5); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; transition: all 0.2s; position: relative; }
+.race-btn svg { width: 100%; height: 100%; display: block; }
+.race-btn:hover { transform: scale(1.06); }
+.race-btn.selected { border-color: var(--neon-cyan); box-shadow: 0 0 20px rgba(0,229,255,0.7); background: rgba(0,229,255,0.08); }
+.race-btn .race-tag { position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); font-size: 0.5rem; color: var(--ink-dim); white-space: nowrap; background: rgba(0,0,0,0.7); padding: 1px 4px; border-radius: 4px; text-transform: uppercase; font-weight: 600; }
+.race-btn.selected .race-tag { color: var(--neon-cyan); }
+.color-picker { display: flex; gap: 0.5rem; margin-bottom: 1.3rem; justify-content: center; flex-wrap: wrap; }
+.color-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: all 0.2s; padding: 0; }
+.color-btn.selected { border-color: #fff; transform: scale(1.15); box-shadow: 0 0 20px currentColor; }
+.enter-btn { width: 100%; padding: 1rem; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple)); color: #fff; font-size: 1rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; font-family: inherit; cursor: pointer; box-shadow: 0 8px 30px rgba(255,46,136,0.45); }
+.enter-btn:active { transform: scale(0.97); }
+.login-hint { text-align: center; font-size: 0.68rem; color: var(--ink-dim); margin-top: 1rem; line-height: 1.5; }
+#club-screen { min-height: 100vh; display: flex; flex-direction: column; max-width: 1100px; margin: 0 auto; padding: 0.8rem; gap: 0.6rem; }
+#club-header { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.9rem; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; backdrop-filter: blur(20px); flex-wrap: wrap; gap: 0.5rem; }
+.club-logo { font-size: 0.95rem; font-weight: 800; letter-spacing: 0.15em; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.header-right { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.badge { padding: 0.35rem 0.7rem; border-radius: 20px; font-size: 0.72rem; font-weight: 600; background: rgba(0,0,0,0.5); border: 1px solid var(--border); display: flex; align-items: center; gap: 0.35rem; }
+.badge svg { width: 20px; height: 20px; }
+#room-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.4rem; padding: 0.4rem; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; backdrop-filter: blur(20px); }
+.room-tab { position: relative; padding: 0.7rem 0.4rem; border-radius: 10px; border: 1px solid transparent; background: rgba(0,0,0,0.35); color: var(--ink); font-family: inherit; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; overflow: hidden; }
+.room-tab:hover { background: rgba(0,0,0,0.55); }
+.room-tab.active { background: linear-gradient(135deg, var(--tab-color-a), var(--tab-color-b)); box-shadow: 0 0 25px var(--tab-glow); border-color: rgba(255,255,255,0.15); }
+.room-tab .tab-emoji { font-size: 1.2rem; line-height: 1; }
+.room-tab .tab-name { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.room-tab .tab-count { font-size: 0.55rem; color: var(--ink-dim); font-weight: 600; }
+.room-tab.active .tab-count { color: rgba(255,255,255,0.9); }
+.room-tab .tab-dj { position: absolute; top: 4px; right: 4px; font-size: 0.6rem; background: rgba(0,0,0,0.7); padding: 1px 5px; border-radius: 8px; animation: djBadgePulse 1.5s ease-in-out infinite; }
+.room-tab .tab-playing { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); display: flex; gap: 2px; align-items: flex-end; height: 8px; }
+.room-tab .tab-playing span { width: 3px; background: #fff; border-radius: 1px; animation: eqBar 0.6s ease-in-out infinite; }
+.room-tab .tab-playing span:nth-child(2) { animation-delay: 0.15s; }
+.room-tab .tab-playing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes eqBar { 0%, 100% { height: 3px; } 50% { height: 8px; } }
+@keyframes djBadgePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+#dj-booth { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 0.8rem; backdrop-filter: blur(20px); }
+.dj-empty { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
+.dj-empty p { font-size: 0.85rem; color: var(--ink-dim); }
+.dj-empty button, .dj-controls button { padding: 0.6rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink)); color: #fff; font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.dj-controls button:disabled { opacity: 0.4; cursor: not-allowed; }
+.dj-controls button.secondary { background: rgba(0,0,0,0.4); }
+.dj-active-wrap { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
+#yt-player-wrap { flex-shrink: 0; width: 240px; height: 135px; border-radius: 10px; overflow: hidden; background: #000; box-shadow: 0 0 30px var(--room-primary); border: 1px solid var(--border); }
+#yt-player, #yt-player iframe { width: 100% !important; height: 100% !important; }
+.dj-controls { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
+.dj-controls input { width: 100%; padding: 0.7rem 0.85rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.5); color: var(--ink); font-family: inherit; font-size: 0.82rem; }
+.dj-controls input:focus { outline: none; border-color: var(--neon-cyan); }
+.dj-controls .btn-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.freq-presets { margin-top: 0.7rem; padding: 0.7rem; border-radius: 12px; background: rgba(192,132,252,0.08); border: 1px solid rgba(192,132,252,0.35); animation: freqIn 0.4s ease; }
+@keyframes freqIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+.freq-title { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em; color: #c084fc; font-weight: 700; margin-bottom: 0.55rem; display: flex; align-items: center; gap: 0.4rem; }
+.freq-buttons { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 0.4rem; }
+.freq-btn { padding: 0.5rem 0.35rem; border-radius: 10px; border: 1px solid rgba(192,132,252,0.4); background: rgba(0,0,0,0.5); color: #f5eaff; font-family: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.1rem; transition: all 0.2s; }
+.freq-btn:hover:not(:disabled) { background: rgba(192,132,252,0.22); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(192,132,252,0.45); }
+.freq-btn:active:not(:disabled) { transform: scale(0.95); }
+.freq-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.freq-btn .freq-hz { font-size: 0.85rem; font-weight: 800; color: #ffd700; line-height: 1; }
+.freq-btn .freq-desc { font-size: 0.55rem; color: #a48ec4; text-align: center; line-height: 1.15; }
+.freq-btn .freq-sym { font-size: 0.5rem; color: #ffd700; opacity: 0.7; font-style: italic; letter-spacing: 0.03em; line-height: 1.1; text-align: center; }
+.freq-btn.playing { background: linear-gradient(135deg, #c084fc, #ffd700); border-color: #ffd700; box-shadow: 0 0 22px rgba(192,132,252,0.75); }
+.freq-btn.playing .freq-hz, .freq-btn.playing .freq-desc, .freq-btn.playing .freq-sym { color: #0a0a1a; }
+#main-grid { display: grid; grid-template-columns: 1fr 320px; gap: 0.7rem; flex: 1; min-height: 500px; }
+#dance-floor { position: relative; border-radius: 18px; overflow: hidden; background: radial-gradient(ellipse at 50% 100%, var(--room-primary), transparent 60%), radial-gradient(ellipse at 50% 0%, var(--room-secondary), transparent 50%), #05010d; background-color: #05010d; background-blend-mode: screen; border: 1px solid var(--border); box-shadow: 0 0 60px var(--room-primary) inset; min-height: 500px; transition: background 0.6s, box-shadow 0.6s; }
+#dance-floor.playing { animation: floorPulse 0.9s ease-in-out infinite; }
+@keyframes floorPulse { 0%, 100% { box-shadow: 0 0 60px var(--room-primary) inset, 0 0 40px var(--room-secondary); } 50% { box-shadow: 0 0 100px var(--room-primary) inset, 0 0 80px var(--room-secondary); } }
+.floor-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--room-primary) 1px, transparent 1px), linear-gradient(90deg, var(--room-primary) 1px, transparent 1px); background-size: 44px 44px; opacity: 0.55; mask-image: radial-gradient(ellipse at center, black 15%, transparent 75%); -webkit-mask-image: radial-gradient(ellipse at center, black 15%, transparent 75%); pointer-events: none; }
+#dance-floor.playing .floor-grid { animation: gridMove 1.2s linear infinite; }
+@keyframes gridMove { from { background-position: 0 0, 0 0; } to { background-position: 0 44px, 44px 0; } }
+.floor-spotlights { position: absolute; inset: 0; pointer-events: none; background: conic-gradient(from 0deg at 30% 20%, transparent 0deg, var(--room-secondary) 15deg, transparent 30deg), conic-gradient(from 180deg at 70% 20%, transparent 0deg, var(--room-primary) 15deg, transparent 30deg); opacity: 0.55; animation: spotSweep 8s ease-in-out infinite; }
+#dance-floor.playing .floor-spotlights { animation-duration: 3s; }
+@keyframes spotSweep { 0%, 100% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(15deg) scale(1.1); } }
+#temple-decor { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; color: #c084fc; transition: color 1.2s ease; }
+#temple-decor.hidden { display: none; }
+.mandala-bg { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, currentColor 0%, transparent 45%); opacity: 0.08; animation: mandalaBgPulse 6s ease-in-out infinite; }
+@keyframes mandalaBgPulse { 0%, 100% { opacity: 0.06; transform: scale(1); } 50% { opacity: 0.16; transform: scale(1.05); } }
+.mandala { position: absolute; top: 50%; left: 50%; width: 92%; max-width: 540px; aspect-ratio: 1; transform: translate(-50%, -50%); filter: drop-shadow(0 0 25px currentColor); transition: color 1.2s ease, filter 1.2s ease; }
+.motif { opacity: 0; transform-origin: 200px 200px; transition: opacity 1s ease; }
+.motif.active { opacity: 1; }
+#motif-vesica { animation: spin 80s linear infinite; }
+#motif-triquetra { animation: spinRev 70s linear infinite; }
+#motif-tetraktys { animation: spin 60s linear infinite; }
+#motif-fibonacci { animation: spin 120s linear infinite; }
+#motif-fleur-de-vie { animation: spin 90s linear infinite; }
+#motif-graine-de-vie { animation: spinRev 100s linear infinite; }
+#motif-vesica-relations { animation: spin 80s linear infinite; }
+#motif-merkaba { animation: spinRev 50s linear infinite; }
+#motif-sri-yantra { animation: spin 70s linear infinite; }
+#motif-metatron { animation: spin 110s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spinRev { to { transform: rotate(-360deg); } }
+#dance-floor.playing #temple-decor .motif.active { animation-duration: 30s !important; }
+#dance-floor.playing .mandala { filter: drop-shadow(0 0 40px currentColor); }
+.mandala-center { animation: centerPulse 3s ease-in-out infinite; transform-origin: 200px 200px; }
+@keyframes centerPulse { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.22); opacity: 1; } }
+#dance-floor.playing .mandala-center { animation-duration: 1.2s; }
+.waves-container { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; transform: translate(-50%, -50%); pointer-events: none; }
+.wave { position: absolute; top: 50%; left: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; border: 1.5px solid currentColor; opacity: 0.7; animation: waveExpand 4s ease-out infinite; }
+@keyframes waveExpand { 0% { transform: scale(0.4); opacity: 0.85; } 100% { transform: scale(22); opacity: 0; } }
+#dance-floor.playing .wave { animation-duration: 2.2s; }
+.temple-hz { position: absolute; top: 1.4rem; right: 1.2rem; display: flex; flex-direction: column; align-items: flex-end; text-align: right; z-index: 6; padding: 0.5rem 0.9rem; border-radius: 14px; background: rgba(0,0,0,0.6); border: 1px solid currentColor; box-shadow: 0 0 30px currentColor; transition: border-color 1.2s, box-shadow 1.2s; backdrop-filter: blur(10px); }
+.temple-hz .hz-value { font-size: 1.7rem; font-weight: 800; color: currentColor; line-height: 1; text-shadow: 0 0 20px currentColor; transition: color 1.2s; font-variant-numeric: tabular-nums; }
+.temple-hz .hz-unit { font-size: 0.6rem; letter-spacing: 0.15em; color: var(--ink-dim); text-transform: uppercase; margin-top: -2px; }
+.temple-hz .hz-label { font-size: 0.68rem; font-weight: 600; color: var(--ink); margin-top: 0.15rem; letter-spacing: 0.05em; }
+#temple-decor.playing .temple-hz { animation: hzPulse 1.6s ease-in-out infinite; }
+@keyframes hzPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.floating-particles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.floating-particles .particle { position: absolute; border-radius: 50%; background: currentColor; box-shadow: 0 0 10px currentColor; opacity: 0; animation: floatUp linear infinite; }
+@keyframes floatUp { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { opacity: 0.9; } 100% { transform: translateY(-400px) scale(0.2); opacity: 0; } }
+#room-indicator { position: absolute; top: 0.8rem; left: 0.9rem; padding: 0.35rem 0.75rem; border-radius: 20px; background: rgba(0,0,0,0.65); border: 1px solid var(--room-primary); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; display: flex; align-items: center; gap: 0.35rem; z-index: 5; transition: border-color 0.6s; }
+#room-indicator .room-name { color: var(--room-primary); text-transform: uppercase; }
+#avatars-container { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.avatar { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 0.25rem; transition: left 0.6s cubic-bezier(0.4,0,0.2,1), top 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.4s; }
+.avatar-circle { width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 4px; background: rgba(0,0,0,0.65); border: 2px solid; position: relative; transition: all 0.3s; }
+.avatar-circle svg { width: 100%; height: 100%; display: block; }
+.avatar-circle::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid; opacity: 0; transition: opacity 0.3s; }
+.avatar.dancing .avatar-circle::after { opacity: 0.7; animation: ringPulse 1s ease-out infinite; }
+@keyframes ringPulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.4); opacity: 0; } }
+.avatar.idle .avatar-circle { animation: idleBob 3s ease-in-out infinite; }
+@keyframes idleBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.avatar.dancing[data-style="bounce"] .avatar-circle { animation: danceBounce 0.55s ease-in-out infinite; }
+.avatar.dancing[data-style="sway"] .avatar-circle { animation: danceSway 0.75s ease-in-out infinite; }
+.avatar.dancing[data-style="spin"] .avatar-circle { animation: danceSpin 1s linear infinite; }
+.avatar.dancing[data-style="headbang"] .avatar-circle { animation: danceHeadbang 0.45s ease-in-out infinite; }
+.avatar.dancing[data-style="robot"] .avatar-circle { animation: danceRobot 0.7s steps(2) infinite; }
+.avatar.dancing[data-style="shuffle"] .avatar-circle { animation: danceShuffle 0.5s ease-in-out infinite; }
+@keyframes danceBounce { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-14px) rotate(4deg); } }
+@keyframes danceSway { 0%, 100% { transform: translateX(-6px) rotate(-10deg); } 50% { transform: translateX(6px) rotate(10deg); } }
+@keyframes danceSpin { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.15); } 100% { transform: rotate(360deg) scale(1); } }
+@keyframes danceHeadbang { 0%, 100% { transform: rotate(-15deg) translateY(0); } 50% { transform: rotate(15deg) translateY(-6px); } }
+@keyframes danceRobot { 0% { transform: translateX(-4px) rotate(-5deg); } 100% { transform: translateX(4px) rotate(5deg); } }
+@keyframes danceShuffle { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.08); } }
+.avatar-name { font-size: 0.6rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 10px; background: rgba(0,0,0,0.8); white-space: nowrap; max-width: 90px; overflow: hidden; text-overflow: ellipsis; border: 1px solid rgba(255,255,255,0.08); }
+.avatar.dancing .avatar-name { background: var(--room-secondary); box-shadow: 0 0 15px var(--room-secondary); }
+#chat-panel { display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; backdrop-filter: blur(20px); min-height: 0; }
+#chat-header { padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); flex-shrink: 0; }
+#chat-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; display: flex; align-items: center; gap: 0.4rem; }
+#chat-title .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--room-primary); box-shadow: 0 0 10px var(--room-primary); animation: livePulse 1.5s ease-in-out infinite; }
+@keyframes livePulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.85); } }
+#chat-room-badge { font-size: 0.6rem; color: var(--room-primary); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+#chat-count { font-size: 0.65rem; color: var(--ink-dim); background: rgba(0,0,0,0.5); padding: 0.15rem 0.5rem; border-radius: 10px; border: 1px solid var(--border); }
+#chat-messages { flex: 1; overflow-y: auto; padding: 0.7rem; display: flex; flex-direction: column; gap: 0.55rem; scrollbar-width: thin; scrollbar-color: var(--border) transparent; min-height: 0; }
+#chat-messages::-webkit-scrollbar { width: 6px; }
+#chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.chat-msg { display: flex; gap: 0.5rem; align-items: flex-start; animation: msgIn 0.3s ease; }
+@keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.chat-msg.self { flex-direction: row-reverse; }
+.chat-avatar { width: 32px; height: 32px; border-radius: 50%; padding: 2px; background: rgba(0,0,0,0.6); border: 2px solid; flex-shrink: 0; }
+.chat-avatar svg { width: 100%; height: 100%; display: block; border-radius: 50%; }
+.chat-bubble-wrap { display: flex; flex-direction: column; gap: 0.15rem; max-width: 78%; }
+.chat-msg.self .chat-bubble-wrap { align-items: flex-end; }
+.chat-name { font-size: 0.62rem; font-weight: 700; padding-left: 0.3rem; }
+.chat-msg.self .chat-name { padding-left: 0; padding-right: 0.3rem; }
+.chat-bubble { padding: 0.45rem 0.7rem; border-radius: 12px; background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.06); font-size: 0.8rem; line-height: 1.35; word-break: break-word; color: var(--ink); }
+.chat-msg.self .chat-bubble { background: linear-gradient(135deg, var(--room-secondary), var(--room-primary)); border-color: transparent; color: #fff; transition: background 0.6s; }
+.chat-bubble.emoji-only { font-size: 1.4rem; padding: 0.3rem 0.6rem; }
+.chat-time { font-size: 0.55rem; color: #666; padding: 0 0.3rem; }
+.chat-system { text-align: center; font-size: 0.65rem; color: var(--ink-dim); font-style: italic; padding: 0.2rem 0; opacity: 0.8; }
+#chat-input-zone { padding: 0.6rem; border-top: 1px solid var(--border); display: flex; gap: 0.4rem; align-items: flex-end; background: rgba(0,0,0,0.3); flex-shrink: 0; }
+#chat-input { flex: 1; padding: 0.55rem 0.75rem; border-radius: 18px; border: 1px solid var(--border); background: rgba(0,0,0,0.5); color: var(--ink); font-family: inherit; font-size: 0.82rem; resize: none; max-height: 80px; min-height: 34px; line-height: 1.3; }
+#chat-input:focus { outline: none; border-color: var(--room-primary); box-shadow: 0 0 12px var(--room-primary); }
+#chat-input::placeholder { color: var(--ink-dim); }
+#chat-send { width: 38px; height: 38px; border-radius: 50%; border: none; background: linear-gradient(135deg, var(--room-secondary), var(--room-primary)); color: #fff; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; transition: background 0.6s; }
+#chat-send:active { transform: scale(0.92); }
+.emoji-quick { display: flex; gap: 0.25rem; padding: 0.3rem 0.5rem 0.4rem; flex-wrap: wrap; background: rgba(0,0,0,0.3); border-top: 1px solid var(--border); }
+.emoji-quick button { width: 28px; height: 28px; border-radius: 8px; border: 1px solid transparent; background: rgba(0,0,0,0.4); font-size: 0.95rem; cursor: pointer; }
+.emoji-quick button:hover { background: rgba(176,38,255,0.25); transform: scale(1.1); }
+#chat-toggle { display: none; position: fixed; bottom: 80px; right: 1rem; width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--room-primary); background: linear-gradient(135deg, var(--room-secondary), var(--room-primary)); color: #fff; font-size: 1.4rem; cursor: pointer; box-shadow: 0 0 25px var(--room-primary); z-index: 50; align-items: center; justify-content: center; }
+#chat-toggle .unread-badge { position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--neon-green); color: #000; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+#controls { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 0.8rem; display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; backdrop-filter: blur(20px); }
+.like-btn { padding: 0.7rem 1.1rem; border-radius: 25px; border: 2px solid var(--room-secondary); background: transparent; color: var(--room-secondary); font-family: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s, border-color 0.6s, color 0.6s; }
+.like-btn.liked { background: var(--room-secondary); color: #fff; box-shadow: 0 0 25px var(--room-secondary); }
+.like-btn:disabled { opacity: 0.35; cursor: not-allowed; border-color: var(--ink-dim); color: var(--ink-dim); }
+.track-info { flex: 1; min-width: 150px; font-size: 0.78rem; color: var(--ink-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.track-info.playing { color: var(--room-primary); font-weight: 600; transition: color 0.6s; }
+.vibe-meter { font-size: 0.75rem; color: var(--ink-dim); padding: 0.4rem 0.7rem; background: rgba(0,0,0,0.4); border-radius: 20px; border: 1px solid var(--border); }
+.vibe-meter strong { color: var(--neon-green); }
+.vibe-bars { display: inline-flex; gap: 2px; margin-left: 0.4rem; vertical-align: middle; }
+.vibe-bars span { display: inline-block; width: 4px; background: var(--ink-dim); border-radius: 2px; transition: all 0.3s; }
+.vibe-bars span.on { background: var(--room-primary); box-shadow: 0 0 8px var(--room-primary); }
+#clubbers-bar { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.9rem; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; font-size: 0.75rem; color: var(--ink-dim); overflow-x: auto; backdrop-filter: blur(20px); }
+#clubbers-bar .label { flex-shrink: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.65rem; }
+.clubber-chip { display: flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.6rem 0.25rem 0.25rem; background: rgba(0,0,0,0.5); border-radius: 20px; border: 1px solid var(--border); flex-shrink: 0; font-size: 0.7rem; white-space: nowrap; }
+.clubber-chip svg { width: 22px; height: 22px; border-radius: 50%; }
+.clubber-chip.dancing { border-color: var(--room-secondary); box-shadow: 0 0 12px var(--room-secondary); }
+.toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-100px); background: rgba(35,15,65,0.95); color: var(--ink); padding: 0.75rem 1.2rem; border-radius: 12px; border: 1px solid var(--neon-cyan); box-shadow: 0 0 30px rgba(0,229,255,0.4); font-size: 0.8rem; font-weight: 600; z-index: 1000; opacity: 0; transition: all 0.35s ease; max-width: 90vw; text-align: center; }
+.toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+@media (max-width: 900px) {
+  #main-grid { grid-template-columns: 1fr; }
+  #chat-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(400px, 92vw); border-radius: 18px 0 0 18px; transform: translateX(105%); transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); z-index: 200; box-shadow: -20px 0 60px rgba(0,0,0,0.6); max-height: 100vh; }
+  #chat-panel.open { transform: translateX(0); }
+  #chat-toggle { display: flex; }
+  #club-screen { max-width: 100%; }
+}
+@media (max-width: 640px) {
+  #club-screen { padding: 0.6rem; gap: 0.5rem; }
+  .club-logo { font-size: 0.8rem; }
+  #yt-player-wrap { width: 100%; height: 180px; }
+  #dance-floor { min-height: 380px; }
+  .avatar-circle { width: 46px; height: 46px; padding: 3px; }
+  .avatar-name { font-size: 0.55rem; max-width: 70px; }
+  .race-picker { grid-template-columns: repeat(3, 1fr); }
+  #chat-toggle { bottom: 1rem; right: 1rem; }
+  .room-tab { padding: 0.55rem 0.25rem; }
+  .room-tab .tab-name { font-size: 0.52rem; }
+  .room-tab .tab-emoji { font-size: 0.9rem; }
+  .room-tab .tab-count { font-size: 0.5rem; }
+  .room-tab .tab-dj { font-size: 0.5rem; padding: 0 3px; top: 2px; right: 2px; }
+  .room-picker-login { grid-template-columns: repeat(4, 1fr); }
+  .room-btn-login { font-size: 0.5rem; padding: 0.5rem 0.15rem; }
+  .room-btn-login .r-emoji { font-size: 1.1rem; }
+  .temple-hz { top: 0.6rem; right: 0.6rem; padding: 0.35rem 0.6rem; }
+  .temple-hz .hz-value { font-size: 1.2rem; }
+  .temple-hz .hz-label { font-size: 0.58rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="logo-main">NEXUS CLUB</div>
+    <div class="logo-sub">5 Salles · 37 Espèces</div>
+    <label class="field-label">Ton pseudo</label>
+    <input type="text" id="nickname" placeholder="Ex: Alex" maxlength="16" autocomplete="off">
+    <label class="field-label">Ta salle d'entrée</label>
+    <div class="room-picker-login" id="room-picker-login"></div>
+    <label class="field-label">Ton espèce</label>
+    <div class="race-picker" id="race-picker"></div>
+    <label class="field-label">Ta couleur néon</label>
+    <div class="color-picker" id="color-picker"></div>
+    <button class="enter-btn" id="enter-btn">Matérialisation</button>
+    <p class="login-hint">🚪 Change de salle à tout moment dans le club.</p>
+  </div>
+</div>
+
+<div id="club-screen" class="hidden">
+  <header id="club-header">
+    <div class="club-logo">◆ NEXUS CLUB</div>
+    <div class="header-right">
+      <div class="badge" id="dj-badge" style="display:none;">🎧 <span id="dj-badge-name">—</span></div>
+      <div class="badge" id="user-badge">—</div>
+    </div>
+  </header>
+
+  <div id="room-tabs"></div>
+
+  <div id="dj-booth">
+    <div class="dj-empty" id="dj-empty">
+      <p id="dj-empty-text">🎧 Aucun DJ dans cette salle…</p>
+      <button id="become-dj">Devenir DJ</button>
+    </div>
+    <div class="dj-active-wrap hidden" id="dj-active">
+      <div id="yt-player-wrap"><div id="yt-player"></div></div>
+      <div class="dj-controls">
+        <input type="text" id="yt-url" placeholder="Colle une URL YouTube…" autocomplete="off">
+        <div class="btn-row">
+          <button id="play-track">▶ Lancer le son</button>
+          <button id="stop-track" class="secondary">⏹ Stop</button>
+          <button id="leave-dj" class="secondary">Quitter les platines</button>
+        </div>
+        <div id="freq-presets" class="freq-presets hidden">
+          <div class="freq-title">🕉️ Fréquences sacrées</div>
+          <div class="freq-buttons" id="freq-buttons"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="main-grid">
+    <div id="dance-floor">
+      <div class="floor-grid"></div>
+      <div class="floor-spotlights"></div>
+
+      <div id="temple-decor" class="hidden">
+        <div class="mandala-bg"></div>
+        <div class="waves-container" id="waves-container"></div>
+        <svg class="mandala" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="auraGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="currentColor" stop-opacity="0.9"/>
+              <stop offset="60%" stop-color="currentColor" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <circle cx="200" cy="200" r="190" fill="url(#auraGrad)" opacity="0.28"/>
+          <g id="motif-vesica" class="motif" stroke="currentColor" fill="none" stroke-width="0.9"><circle cx="170" cy="200" r="90"/><circle cx="230" cy="200" r="90"/><ellipse cx="200" cy="200" rx="30" ry="78" opacity="0.6"/><line x1="200" y1="122" x2="200" y2="278" opacity="0.5"/></g>
+          <g id="motif-triquetra" class="motif" stroke="currentColor" fill="none" stroke-width="0.9"><circle cx="200" cy="160" r="60"/><circle cx="165" cy="225" r="60"/><circle cx="235" cy="225" r="60"/><circle cx="200" cy="200" r="130" opacity="0.35"/><circle cx="200" cy="200" r="150" opacity="0.2"/></g>
+          <g id="motif-tetraktys" class="motif" fill="currentColor"><g opacity="0.9"><circle cx="200" cy="120" r="3"/><circle cx="186" cy="144" r="3"/><circle cx="214" cy="144" r="3"/><circle cx="172" cy="168" r="3"/><circle cx="200" cy="168" r="3"/><circle cx="228" cy="168" r="3"/><circle cx="158" cy="192" r="3"/><circle cx="186" cy="192" r="3"/><circle cx="214" cy="192" r="3"/><circle cx="242" cy="192" r="3"/></g><polygon points="200,120 158,192 242,192" stroke="currentColor" fill="none" stroke-width="0.8" opacity="0.5"/><polygon points="186,144 172,168 200,168 228,168 214,144" stroke="currentColor" fill="none" stroke-width="0.8" opacity="0.6"/><circle cx="200" cy="200" r="140" stroke="currentColor" fill="none" stroke-width="0.6" opacity="0.3"/></g>
+          <g id="motif-fibonacci" class="motif" stroke="currentColor" fill="none" stroke-width="0.9"><path d="M 200 200 m 0 -10 a 10 10 0 0 1 10 10 a 20 20 0 0 1 -20 20 a 30 30 0 0 1 -30 -30 a 50 50 0 0 1 50 -50 a 80 80 0 0 1 80 80 a 130 130 0 0 1 -130 130" opacity="0.9"/><path d="M 200 200 m 0 10 a 10 10 0 0 0 10 -10 a 20 20 0 0 0 -20 -20 a 30 30 0 0 0 -30 30 a 50 50 0 0 0 50 50 a 80 80 0 0 0 80 -80 a 130 130 0 0 0 -130 -130"
+		  " opacity="0.5"/><circle cx="200" cy="200" r="170" opacity="0.25"/></g>
+          <g id="motif-fleur-de-vie" class="motif" stroke="currentColor" fill="none" stroke-width="0.75"><g id="fleur-ring-1"></g><g id="fleur-ring-2"></g><g id="fleur-ring-3"></g><circle cx="200" cy="200" r="160" opacity="0.3"/><circle cx="200" cy="200" r="180" opacity="0.18"/></g>
+          <g id="motif-graine-de-vie" class="motif" stroke="currentColor" fill="none" stroke-width="0.9"><g id="graine-6"></g><g id="graine-12"></g><path d="M 200 80 Q 230 140 200 200 Q 170 260 200 320" opacity="0.85"/><path d="M 200 80 Q 170 140 200 200 Q 230 260 200 320" opacity="0.85"/><g opacity="0.8"><line x1="180" y1="105" x2="220" y2="115"/><line x1="180" y1="135" x2="220" y2="145"/><line x1="180" y1="165" x2="220" y2="175"/><line x1="180" y1="195" x2="220" y2="205"/><line x1="180" y1="225" x2="220" y2="235"/><line x1="180" y1="255" x2="220" y2="265"/><line x1="180" y1="285" x2="220" y2="295"/></g></g>
+          <g id="motif-vesica-relations" class="motif" stroke="currentColor" fill="none" stroke-width="0.85"><circle cx="130" cy="200" r="75"/><circle cx="270" cy="200" r="75"/><circle cx="200" cy="200" r="75" opacity="0.85"/><circle cx="200" cy="130" r="75" opacity="0.6"/><circle cx="200" cy="270" r="75" opacity="0.6"/><circle cx="200" cy="200" r="160" opacity="0.25"/></g>
+          <g id="motif-merkaba" class="motif" stroke="currentColor" fill="none" stroke-width="0.9"><polygon points="200,80 305,265 95,265"/><polygon points="200,320 95,135 305,135"/><circle cx="200" cy="200" r="120" opacity="0.5"/><circle cx="200" cy="200" r="160" opacity="0.28"/><g opacity="0.45"><line x1="200" y1="80" x2="200" y2="320"/><line x1="95" y1="265" x2="305" y2="135"/><line x1="95" y1="135" x2="305" y2="265"/></g></g>
+          <g id="motif-sri-yantra" class="motif" stroke="currentColor" fill="none" stroke-width="0.85"><polygon points="200,90 320,270 80,270"/><polygon points="200,310 80,130 320,130"/><polygon points="200,130 285,250 115,250" opacity="0.9"/><polygon points="200,270 115,150 285,150" opacity="0.9"/><polygon points="200,160 255,240 145,240" opacity="0.8"/><polygon points="200,240 145,160 255,160" opacity="0.8"/><polygon points="200,190 230,230 170,230" opacity="0.7"/><circle cx="200" cy="200" r="5" fill="currentColor" opacity="0.9"/><circle cx="200" cy="200" r="165" opacity="0.25"/></g>
+          <g id="motif-metatron" class="motif" stroke="currentColor" fill="none" stroke-width="0.7"><g id="metatron-circles"></g><g id="metatron-lines" opacity="0.55"></g><circle cx="200" cy="200" r="180" opacity="0.3"/><circle cx="200" cy="200" r="170" opacity="0.18"/></g>
+          <g class="mandala-center" fill="currentColor"><circle cx="200" cy="200" r="5" opacity="0.95"/><circle cx="200" cy="200" r="12" fill="none" stroke="currentColor" stroke-width="1" opacity="0.7"/><circle cx="200" cy="200" r="20" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.4"/></g>
+        </svg>
+        <div class="temple-hz" id="temple-hz">
+          <span class="hz-value">432</span>
+          <span class="hz-unit">Hz</span>
+          <span class="hz-label">Harmonie</span>
+        </div>
+        <div class="floating-particles" id="floating-particles"></div>
+      </div>
+
+      <div id="room-indicator">📍 <span class="room-name">—</span></div>
+      <div id="avatars-container"></div>
+    </div>
+
+    <div id="chat-panel">
+      <div id="chat-header">
+        <div id="chat-title"><span class="live-dot"></span>Comms · <span id="chat-room-badge">—</span></div>
+        <div id="chat-count">0 msg</div>
+      </div>
+      <div id="chat-messages"></div>
+      <div class="emoji-quick" id="emoji-quick"></div>
+      <div id="chat-input-zone">
+        <textarea id="chat-input" placeholder="Écris un message…" rows="1" maxlength="200"></textarea>
+        <button id="chat-send" title="Envoyer">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="controls">
+    <button class="like-btn" id="like-btn" disabled>
+      <span id="like-icon">♡</span>
+      <span id="like-label">J'aime ce son</span>
+    </button>
+    <div class="track-info" id="track-info">Aucun son en cours</div>
+    <div class="vibe-meter" id="vibe-meter">
+      <strong>0</strong>/<span id="vibe-total">0</span> danseurs
+      <span class="vibe-bars" id="vibe-bars"></span>
+    </div>
+  </div>
+
+  <div id="clubbers-bar">
+    <span class="label">Présents</span>
+    <div id="clubbers-list" style="display:flex; gap:0.4rem;"></div>
+  </div>
+</div>
+
+<button id="chat-toggle" title="Chat">💬<span class="unread-badge hidden" id="unread-badge">0</span></button>
+<div class="toast" id="toast">—</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   5 SALLES
+   ═══════════════════════════════════════════════════════════════ */
+const ROOMS = [
+  { id:'rap', name:'Rap', emoji:'🎤', tagline:'Hip-Hop · Rap FR/US',
+    primary:'#ff2e88', secondary:'#ff6b35', glow:'rgba(255,46,136,0.5)' },
+  { id:'techno', name:'Techno', emoji:'🎧', tagline:'Techno · Électro',
+    primary:'#00e5ff', secondary:'#00ff9d', glow:'rgba(0,229,255,0.5)' },
+  { id:'rock', name:'Rock', emoji:'🎸', tagline:'Rock · Metal · Punk',
+    primary:'#e63946', secondary:'#f4a261', glow:'rgba(230,57,70,0.5)' },
+  { id:'temple', name:'Temple', emoji:'🛕', tagline:'Hertz · Méditation · Sacré',
+    primary:'#c084fc', secondary:'#ffd700', glow:'rgba(192,132,252,0.5)' },
+  { id:'ambiance', name:'Ambiance', emoji:'🌌', tagline:'Lounge · Chill',
+    primary:'#b026ff', secondary:'#ffd400', glow:'rgba(176,38,255,0.5)' }
+];
+const getRoom = (id) => ROOMS.find(r => r.id === id) || ROOMS[0];
+
+/* ═══════════════════════════════════════════════════════════════
+   37 ESPÈCES — 5 humains + 26 aliens + 6 IA
+   ═══════════════════════════════════════════════════════════════ */
+const RACES = [
+  { id:'human-african', name:'Africain', isHuman:true, svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="26" ry="32" fill="#5a3820"/><path d="M 20 44 Q 18 14 50 12 Q 82 14 80 44 Q 78 26 68 22 Q 50 18 32 22 Q 22 26 20 44 Z" fill="#120805"/><ellipse cx="38" cy="52" rx="5" ry="4" fill="#fff"/><ellipse cx="62" cy="52" rx="5" ry="4" fill="#fff"/><circle cx="38" cy="52" r="2.5" fill="#2a1005"/><circle cx="62" cy="52" r="2.5" fill="#2a1005"/><circle cx="38.8" cy="51" r="0.9" fill="#fff"/><circle cx="62.8" cy="51" r="0.9" fill="#fff"/><path d="M 43 75 Q 50 79 57 75" stroke="#2a1005" stroke-width="1.8" fill="none"/></svg>` },
+  { id:'human-asian', name:'Asiatique', isHuman:true, svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="27" ry="33" fill="#f0c898"/><path d="M 20 42 Q 22 12 50 10 Q 78 12 80 42 Q 76 24 50 20 Q 24 24 20 42 Z" fill="#0a0805"/><path d="M 22 50 Q 24 40 32 38 Q 36 44 32 52 Z" fill="#0a0805"/><path d="M 78 50 Q 76 40 68 38 Q 64 44 68 52 Z" fill="#0a0805"/><ellipse cx="38" cy="54" rx="5" ry="3" fill="#fff"/><ellipse cx="62" cy="54" rx="5" ry="3" fill="#fff"/><ellipse cx="38" cy="54" rx="2.5" ry="2.8" fill="#1a0a05"/><ellipse cx="62" cy="54" rx="2.5" ry="2.8" fill="#1a0a05"/><path d="M 44 76 Q 50 78 56 76" stroke="#a05a3a" stroke-width="1.4" fill="none"/></svg>` },
+  { id:'human-caucasian', name:'Caucasien', isHuman:true, svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="26" ry="32" fill="#f4d4b8"/><path d="M 22 42 Q 24 14 50 12 Q 76 14 78 42 Q 72 26 50 24 Q 28 26 22 42 Z" fill="#a0703a"/><ellipse cx="38" cy="52" rx="5" ry="4" fill="#fff"/><ellipse cx="62" cy="52" rx="5" ry="4" fill="#fff"/><circle cx="38" cy="52" r="3" fill="#3a7ac4"/><circle cx="62" cy="52" r="3" fill="#3a7ac4"/><circle cx="38" cy="52" r="1.3" fill="#000"/><circle cx="62" cy="52" r="1.3" fill="#000"/><path d="M 43 75 Q 50 79 57 75" stroke="#c47a5a" stroke-width="1.6" fill="none"/></svg>` },
+  { id:'human-latino', name:'Latino', isHuman:true, svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="27" ry="33" fill="#c98a5a"/><path d="M 20 42 Q 22 12 50 10 Q 78 12 80 42 Q 76 22 50 20 Q 24 22 20 42 Z" fill="#1a0a05"/><ellipse cx="38" cy="52" rx="5" ry="4" fill="#fff"/><ellipse cx="62" cy="52" rx="5" ry="4" fill="#fff"/><circle cx="38" cy="52" r="2.8" fill="#4a2210"/><circle cx="62" cy="52" r="2.8" fill="#4a2210"/><path d="M 43 75 Q 50 79 57 75" stroke="#7a3a1a" stroke-width="1.6" fill="none"/></svg>` },
+  { id:'human-middle-eastern', name:'Oriental', isHuman:true, svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="27" ry="33" fill="#a86a3a"/><path d="M 20 44 Q 22 10 50 8 Q 78 10 80 44 Q 78 24 50 22 Q 22 24 20 44 Z" fill="#1a0a05"/><path d="M 20 44 Q 18 52 22 62 Q 26 60 24 48 Z" fill="#1a0a05"/><path d="M 80 44 Q 82 52 78 62 Q 74 60 76 48 Z" fill="#1a0a05"/><ellipse cx="38" cy="52" rx="5.5" ry="4.5" fill="#fff"/><ellipse cx="62" cy="52" rx="5.5" ry="4.5" fill="#fff"/><circle cx="38" cy="52" r="3" fill="#2a1005"/><circle cx="62" cy="52" r="3" fill="#2a1005"/><path d="M 43 76 Q 50 79 57 76" stroke="#5a2a10" stroke-width="1.5" fill="none"/></svg>` },
+  { id:'arcturians', name:'Arcturiens', svg:`<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#00e5ff" opacity="0.15"/><ellipse cx="50" cy="52" rx="26" ry="36" fill="#5ac4e8"/><ellipse cx="50" cy="24" rx="20" ry="7" fill="#8ae0ff" opacity="0.6"/><ellipse cx="38" cy="52" rx="6" ry="10" fill="#0a2a4a"/><ellipse cx="62" cy="52" rx="6" ry="10" fill="#0a2a4a"/><circle cx="38" cy="49" r="2" fill="#8ae0ff"/><circle cx="62" cy="49" r="2" fill="#8ae0ff"/></svg>`},
+  { id:'arcturans', name:'Arcturans', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="24" ry="42" fill="#4a90d8"/><path d="M 26 30 Q 50 18 74 30 Q 72 22 50 20 Q 28 22 26 30" fill="#2a5a9a"/><ellipse cx="40" cy="52" rx="5" ry="9" fill="#0a0a3a"/><ellipse cx="60" cy="52" rx="5" ry="9" fill="#0a0a3a"/><circle cx="40" cy="49" r="1.6" fill="#aae0ff"/><circle cx="60" cy="49" r="1.6" fill="#aae0ff"/></svg>`},
+  { id:'dwarfs', name:'Dwarfs', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="62" rx="30" ry="24" fill="#8a5a30"/><ellipse cx="50" cy="44" rx="22" ry="18" fill="#c98a4a"/><path d="M 30 40 L 38 26 L 50 30 L 62 26 L 70 40 Q 60 34 50 36 Q 40 34 30 40 Z" fill="#5a3a1a"/><ellipse cx="42" cy="46" rx="4" ry="3" fill="#fff"/><ellipse cx="58" cy="46" rx="4" ry="3" fill="#fff"/><circle cx="42" cy="46" r="1.5" fill="#000"/><circle cx="58" cy="46" r="1.5" fill="#000"/><path d="M 36 60 Q 50 76 64 60 Q 62 72 50 74 Q 38 72 36 60 Z" fill="#7a5a3a"/></svg>`},
+  { id:'greys-short', name:'Greys (S)', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="48" rx="30" ry="26" fill="#98a4b2"/><ellipse cx="38" cy="48" rx="8" ry="12" fill="#0a0a0a" transform="rotate(-20 38 48)"/><ellipse cx="62" cy="48" rx="8" ry="12" fill="#0a0a0a" transform="rotate(20 62 48)"/><circle cx="38" cy="45" r="1.8" fill="#fff" opacity="0.4"/><circle cx="62" cy="45" r="1.8" fill="#fff" opacity="0.4"/></svg>`},
+  { id:'hybrids', name:'Hybrids', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="52" rx="28" ry="34" fill="#d8c4a8"/><path d="M 26 30 Q 50 24 74 30 Q 70 20 50 18 Q 30 20 26 30" fill="#b8a488"/><ellipse cx="38" cy="52" rx="5" ry="6" fill="#5a7a8a"/><ellipse cx="62" cy="52" rx="5" ry="6" fill="#5a7a8a"/><circle cx="38" cy="52" r="2.5" fill="#0a0a0a"/><circle cx="62" cy="52" r="2.5" fill="#0a0a0a"/></svg>`},
+  { id:'iguanoids', name:'Iguanoïds', svg:`<svg viewBox="0 0 100 100"><path d="M 20 36 L 24 20 L 32 30 L 38 16 L 44 28 L 50 12 L 56 28 L 62 16 L 68 30 L 76 20 L 80 36 Z" fill="#3d6b22"/><ellipse cx="50" cy="60" rx="30" ry="32" fill="#5a8a3a"/><ellipse cx="38" cy="58" rx="7" ry="6" fill="#ffd400"/><ellipse cx="62" cy="58" rx="7" ry="6" fill="#ffd400"/><ellipse cx="38" cy="58" rx="2" ry="6" fill="#000"/><ellipse cx="62" cy="58" rx="2" ry="6" fill="#000"/></svg>`},
+  { id:'korendians', name:'Korendians', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="52" rx="28" ry="36" fill="#f0d8b8"/><path d="M 26 32 Q 50 22 74 32 Q 72 24 50 22 Q 28 24 26 32" fill="#c9b090"/><ellipse cx="38" cy="52" rx="5" ry="6" fill="#8a6ac4"/><ellipse cx="62" cy="52" rx="5" ry="6" fill="#8a6ac4"/><circle cx="38" cy="52" r="2.5" fill="#1a0a3a"/><circle cx="62" cy="52" r="2.5" fill="#1a0a3a"/></svg>`},
+  { id:'lyrans', name:'Lyrans', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="60" rx="34" ry="24" fill="#e8b878"/><path d="M 18 56 Q 12 30 26 18 Q 38 10 50 14 Q 62 10 74 18 Q 88 30 82 56 Q 76 40 66 34 Q 50 26 34 34 Q 24 40 18 56 Z" fill="#d49040"/><ellipse cx="50" cy="54" rx="22" ry="24" fill="#f0d8a8"/><path d="M 34 52 L 44 50 L 42 58 Z" fill="#8a5a30"/><path d="M 66 52 L 56 50 L 58 58 Z" fill="#8a5a30"/><ellipse cx="42" cy="48" rx="4" ry="3" fill="#ffaa00"/><ellipse cx="58" cy="48" rx="4" ry="3" fill="#ffaa00"/><circle cx="42" cy="48" r="1.4" fill="#000"/><circle cx="58" cy="48" r="1.4" fill="#000"/></svg>`},
+  { id:'moon-eyes', name:'Moon-Eyes', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="30" ry="38" fill="#c8b8d8"/><circle cx="50" cy="48" r="26" fill="#b8a8c8"/><ellipse cx="36" cy="48" rx="9" ry="14" fill="#1a0a2a"/><ellipse cx="64" cy="48" rx="9" ry="14" fill="#1a0a2a"/><circle cx="36" cy="45" r="2.5" fill="#d8d0ff" opacity="0.5"/><circle cx="64" cy="45" r="2.5" fill="#d8d0ff" opacity="0.5"/></svg>`},
+  { id:'nagas', name:'Nagas', svg:`<svg viewBox="0 0 100 100"><path d="M 18 62 Q 12 30 30 20 Q 50 8 70 20 Q 88 30 82 62 Q 78 78 68 84 Q 50 90 32 84 Q 22 78 18 62 Z" fill="#2a5a3a"/><ellipse cx="50" cy="46" rx="26" ry="30" fill="#4a8a5a"/><ellipse cx="50" cy="46" rx="19" ry="23" fill="#2a5a3a"/><ellipse cx="40" cy="44" rx="5" ry="7" fill="#ffd400"/><ellipse cx="60" cy="44" rx="5" ry="7" fill="#ffd400"/><ellipse cx="40" cy="44" rx="1.5" ry="7" fill="#000"/><ellipse cx="60" cy="44" rx="1.5" ry="7" fill="#000"/><path d="M 46 64 L 50 70 L 54 64" stroke="#ff4466" stroke-width="2" fill="none"/></svg>`},
+  { id:'reptiliens', name:'Reptiliens', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="32" ry="38" fill="#3a6a2a"/><path d="M 32 30 L 40 22 L 46 32 M 68 30 L 60 22 L 54 32 M 50 18 L 50 30" stroke="#2a4a1a" stroke-width="2.5" fill="none"/><ellipse cx="36" cy="54" rx="8" ry="5" fill="#ffaa00"/><ellipse cx="64" cy="54" rx="8" ry="5" fill="#ffaa00"/><ellipse cx="36" cy="54" rx="1.5" ry="5" fill="#000"/><ellipse cx="64" cy="54" rx="1.5" ry="5" fill="#000"/></svg>`},
+  { id:'mib', name:'M.I.B.', svg:`<svg viewBox="0 0 100 100"><path d="M 12 96 Q 18 72 50 70 Q 82 72 88 96 Z" fill="#0a0a0a"/><path d="M 42 70 L 50 84 L 58 70 Z" fill="#fff"/><path d="M 46 70 L 50 80 L 54 70 Z" fill="#000"/><circle cx="50" cy="48" r="26" fill="#e8c8a0"/><path d="M 20 42 Q 50 28 80 42 Q 78 34 50 32 Q 22 34 20 42" fill="#0a0a0a"/><rect x="25" y="44" width="21" height="10" rx="4" fill="#000"/><rect x="54" y="44" width="21" height="10" rx="4" fill="#000"/><path d="M 46 44 L 54 44" stroke="#000" stroke-width="3"/></svg>`},
+  { id:'nordics', name:'Nordics', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="52" rx="30" ry="38" fill="#f0d8b8"/><path d="M 20 44 Q 22 10 50 8 Q 78 10 80 44 Q 76 24 50 22 Q 24 24 20 44" fill="#e8d070"/><path d="M 20 44 Q 16 62 22 82 Q 28 80 26 62 Z" fill="#e8d070"/><path d="M 80 44 Q 84 62 78 82 Q 72 80 74 62 Z" fill="#e8d070"/><ellipse cx="38" cy="54" rx="5" ry="6" fill="#4a8ac4"/><ellipse cx="62" cy="54" rx="5" ry="6" fill="#4a8ac4"/><circle cx="38" cy="54" r="2.5" fill="#000"/><circle cx="62" cy="54" r="2.5" fill="#000"/></svg>`},
+  { id:'pleiadiens', name:'Pléiadiens', svg:`<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#c8e0ff" opacity="0.18"/><ellipse cx="50" cy="52" rx="26" ry="36" fill="#e0eeff"/><ellipse cx="38" cy="52" rx="5" ry="7" fill="#4a6ac4"/><ellipse cx="62" cy="52" rx="5" ry="7" fill="#4a6ac4"/><circle cx="38" cy="52" r="2" fill="#fff"/><circle cx="62" cy="52" r="2" fill="#fff"/><circle cx="50" cy="20" r="2.5" fill="#fff" opacity="0.9"/><circle cx="74" cy="30" r="1.8" fill="#fff" opacity="0.7"/><circle cx="26" cy="34" r="1.8" fill="#fff" opacity="0.7"/></svg>`},
+  { id:'andromediens', name:'Andromédiens', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="24" ry="42" fill="#5a8ac4"/><path d="M 26 32 Q 50 20 74 32 Q 72 22 50 20 Q 28 22 26 32" fill="#3a5a8a"/><ellipse cx="41" cy="56" rx="5" ry="9" fill="#0a0a2a"/><ellipse cx="59" cy="56" rx="5" ry="9" fill="#0a0a2a"/><circle cx="41" cy="53" r="1.6" fill="#8ac4ff"/><circle cx="59" cy="53" r="1.6" fill="#8ac4ff"/></svg>`},
+  { id:'sirians', name:'Sirians', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="30" ry="36" fill="#3ac4c4"/><path d="M 22 42 Q 50 22 78 42 Q 76 32 50 30 Q 24 32 22 42" fill="#1a8a8a"/><ellipse cx="36" cy="54" rx="8" ry="6" fill="#fff"/><ellipse cx="64" cy="54" rx="8" ry="6" fill="#fff"/><circle cx="36" cy="54" r="3" fill="#0a4a4a"/><circle cx="64" cy="54" r="3" fill="#0a4a4a"/><path d="M 18 52 L 10 50 M 18 58 L 10 58 M 82 52 L 90 50 M 82 58 L 90 58" stroke="#3ac4c4" stroke-width="2" stroke-linecap="round"/></svg>`},
+  { id:'mantides', name:'Mantides', svg:`<svg viewBox="0 0 100 100"><path d="M 26 56 L 18 28 L 30 22 L 36 52 Z" fill="#3a7a3a"/><path d="M 74 56 L 82 28 L 70 22 L 64 52 Z" fill="#3a7a3a"/><ellipse cx="50" cy="62" rx="22" ry="26" fill="#5aa05a"/><ellipse cx="38" cy="60" rx="9" ry="11" fill="#aaffaa"/><ellipse cx="62" cy="60" rx="9" ry="11" fill="#aaffaa"/><circle cx="38" cy="60" r="4" fill="#1a3a1a"/><circle cx="62" cy="60" r="4" fill="#1a3a1a"/></svg>`},
+  { id:'dracos', name:'Dracos', svg:`<svg viewBox="0 0 100 100"><path d="M 18 42 Q 12 24 22 14 L 28 30 Z" fill="#8a2a2a"/><path d="M 82 42 Q 88 24 78 14 L 72 30 Z" fill="#8a2a2a"/><ellipse cx="50" cy="54" rx="30" ry="36" fill="#8a3a2a"/><path d="M 32 32 L 40 22 L 46 32 L 50 20 L 54 32 L 60 22 L 68 32" fill="#5a1a1a"/><ellipse cx="36" cy="56" rx="7" ry="5" fill="#ffaa00"/><ellipse cx="64" cy="56" rx="7" ry="5" fill="#ffaa00"/><ellipse cx="36" cy="56" rx="2" ry="5" fill="#000"/><ellipse cx="64" cy="56" rx="2" ry="5" fill="#000"/></svg>`},
+  { id:'janosians', name:'Janosians', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="28" ry="40" fill="#d4c4a8"/><path d="M 30 22 Q 50 8 70 22 Q 72 32 
+   66 36 Q 50 24 34 36 Q 28 32 30 22" fill="#8a6d3a"/><ellipse cx="40" cy="56" rx="5" ry="8" fill="#4a6b8a"/><ellipse cx="60" cy="56" rx="5" ry="8" fill="#4a6b8a"/><circle cx="40" cy="56" r="2" fill="#000"/><circle cx="60" cy="56" r="2" fill="#000"/></svg>`},
+  { id:'anunnaki', name:'Anunnaki', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="52" rx="26" ry="34" fill="#c9a878"/><path d="M 22 38 Q 24 12 50 10 Q 76 12 78 38 Q 70 26 50 24 Q 30 26 22 38" fill="#4a3a2a"/><ellipse cx="40" cy="52" rx="5" ry="6" fill="#7a5a3a"/><ellipse cx="60" cy="52" rx="5" ry="6" fill="#7a5a3a"/><circle cx="40" cy="52" r="2.5" fill="#0a0a0a"/><circle cx="60" cy="52" r="2.5" fill="#0a0a0a"/><path d="M 40 70 Q 50 76 60 70 Q 58 74 50 76 Q 42 74 40 70 Z" fill="#7a5a3a"/></svg>`},
+  { id:'alpha-centauri', name:'α Centauri', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="52" rx="26" ry="40" fill="#4a90d8"/><path d="M 24 30 Q 50 18 76 30 Q 72 22 50 20 Q 28 22 24 30" fill="#2a5a9a"/><path d="M 50 8 L 50 20" stroke="#8ac4ff" stroke-width="1.5"/><circle cx="50" cy="6" r="2.5" fill="#8ac4ff"/><ellipse cx="40" cy="54" rx="4.5" ry="9" fill="#0a0a3a"/><ellipse cx="60" cy="54" rx="4.5" ry="9" fill="#0a0a3a"/><circle cx="40" cy="51" r="1.6" fill="#aae0ff"/><circle cx="60" cy="51" r="1.6" fill="#aae0ff"/></svg>`},
+  { id:'venusiens', name:'Vénusiens', svg:`<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#ffd400" opacity="0.15"/><ellipse cx="50" cy="52" rx="28" ry="36" fill="#ffd890"/><ellipse cx="50" cy="24" rx="20" ry="6" fill="#ffeaa0" opacity="0.7"/><ellipse cx="38" cy="52" rx="5" ry="6" fill="#8a6a2a"/><ellipse cx="62" cy="52" rx="5" ry="6" fill="#8a6a2a"/><circle cx="38" cy="52" r="2.5" fill="#1a0a00"/><circle cx="62" cy="52" r="2.5" fill="#1a0a00"/></svg>`},
+  { id:'martiens', name:'Martiens', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="52" rx="30" ry="38" fill="#c44a2a"/><path d="M 20 34 Q 50 22 80 34 Q 78 26 50 24 Q 22 26 20 34" fill="#8a2a1a"/><ellipse cx="38" cy="52" rx="6" ry="5" fill="#1a0a0a"/><ellipse cx="62" cy="52" rx="6" ry="5" fill="#1a0a0a"/><circle cx="38" cy="52" r="2" fill="#ffaa00"/><circle cx="62" cy="52" r="2" fill="#ffaa00"/></svg>`},
+  { id:'aldebarans', name:'Aldébarans', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="58" rx="30" ry="30" fill="#d49040"/><path d="M 22 42 Q 16 22 26 12 L 32 28 Z" fill="#e8c890"/><path d="M 78 42 Q 84 22 74 12 L 68 28 Z" fill="#e8c890"/><ellipse cx="50" cy="50" rx="22" ry="24" fill="#e8b878"/><ellipse cx="42" cy="48" rx="4" ry="3" fill="#1a0a00"/><ellipse cx="58" cy="48" rx="4" ry="3" fill="#1a0a00"/><ellipse cx="50" cy="62" rx="10" ry="7" fill="#a06020"/><circle cx="46" cy="62" r="1.8" fill="#3a1a0a"/><circle cx="54" cy="62" r="1.8" fill="#3a1a0a"/></svg>`},
+  { id:'essassani', name:'Essassani', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="28" ry="38" fill="#b8c4d0"/><path d="M 26 30 Q 50 20 74 30 Q 70 22 50 20 Q 30 22 26 30" fill="#8a96a8"/><ellipse cx="36" cy="50" rx="7" ry="11" fill="#1a1a2a" transform="rotate(-10 36 50)"/><ellipse cx="64" cy="50" rx="7" ry="11" fill="#1a1a2a" transform="rotate(10 64 50)"/><circle cx="36" cy="47" r="1.8" fill="#aae0ff" opacity="0.6"/><circle cx="64" cy="47" r="1.8" fill="#aae0ff" opacity="0.6"/></svg>`},
+  { id:'tall-whites', name:'Tall Whites', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="52" rx="20" ry="44" fill="#f8f0e0"/><path d="M 30 22 Q 50 8 70 22 Q 66 16 50 14 Q 34 16 30 22" fill="#e8e0c8"/><ellipse cx="42" cy="50" rx="3.5" ry="8" fill="#3a4a6a"/><ellipse cx="58" cy="50" rx="3.5" ry="8" fill="#3a4a6a"/><circle cx="42" cy="48" r="1.4" fill="#aac4e0"/><circle cx="58" cy="48" r="1.4" fill="#aac4e0"/></svg>`},
+  { id:'et-bio', name:'Bio-Drones', svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="36" ry="28" fill="#2a4a6a"/><circle cx="50" cy="48" r="22" fill="#3a6a8a"/><circle cx="42" cy="46" r="5" fill="#00e5ff"/><circle cx="58" cy="46" r="5" fill="#00e5ff"/><circle cx="42" cy="46" r="2" fill="#fff"/><circle cx="58" cy="46" r="2" fill="#fff"/><path d="M 30 62 Q 50 72 70 62" stroke="#5a8aaa" stroke-width="1.5" fill="none"/><path d="M 20 50 L 12 46 M 20 54 L 12 54 M 20 58 L 12 62" stroke="#00e5ff" stroke-width="1.5" stroke-linecap="round"/><path d="M 80 50 L 88 46 M 80 54 L 88 54 M 80 58 L 88 62" stroke="#00e5ff" stroke-width="1.5" stroke-linecap="round"/></svg>`},
+  { id:'android', name:'Androïde', isAI:true, svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="26" ry="32" fill="#b8c4d0"/><path d="M 26 32 Q 50 22 74 32 Q 72 24 50 22 Q 28 24 26 32" fill="#8a96a2"/><circle cx="38" cy="52" r="5" fill="#0a0a0a"/><circle cx="62" cy="52" r="5" fill="#0a0a0a"/><circle cx="38" cy="52" r="2.5" fill="#00e5ff"/><circle cx="62" cy="52" r="2.5" fill="#00e5ff"/><rect x="40" y="72" width="20" height="2" fill="#7a8692"/><line x1="26" y1="44" x2="16" y2="44" stroke="#7a8692" stroke-width="2"/><line x1="74" y1="44" x2="84" y2="44" stroke="#7a8692" stroke-width="2"/><circle cx="16" cy="44" r="1.5" fill="#00e5ff"/><circle cx="84" cy="44" r="1.5" fill="#00e5ff"/></svg>`},
+  { id:'quantum-ai', name:'IA Quantique', isAI:true, svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="34" ry="10" fill="none" stroke="#00e5ff" stroke-width="1" opacity="0.5"/><ellipse cx="50" cy="50" rx="10" ry="34" fill="none" stroke="#00e5ff" stroke-width="1" opacity="0.5"/><circle cx="50" cy="50" r="28" fill="none" stroke="#b026ff" stroke-width="1" opacity="0.6"/><circle cx="50" cy="50" r="20" fill="#0a2a4a"/><circle cx="50" cy="50" r="13" fill="#00e5ff" opacity="0.7"/><circle cx="50" cy="50" r="6" fill="#fff"/><circle cx="22" cy="50" r="1.5" fill="#00e5ff"/><circle cx="78" cy="50" r="1.5" fill="#00e5ff"/><circle cx="50" cy="22" r="1.5" fill="#b026ff"/><circle cx="50" cy="78" r="1.5" fill="#b026ff"/></svg>`},
+  { id:'mecha', name:'Mecha', isAI:true, svg:`<svg viewBox="0 0 100 100"><path d="M 22 30 L 28 20 L 42 26 L 58 26 L 72 20 L 78 30 L 78 70 L 68 82 L 32 82 L 22 70 Z" fill="#5a6a7a"/><path d="M 22 30 L 28 20 L 42 26 L 58 26 L 72 20 L 78 30" fill="none" stroke="#3a4a5a" stroke-width="1.5"/><rect x="28" y="40" width="44" height="14" rx="2" fill="#0a0a0a"/><rect x="30" y="42" width="40" height="10" fill="#ff2e88" opacity="0.9"/><rect x="38" y="62" width="24" height="6" fill="#0a0a0a"/><circle cx="30" cy="32" r="2" fill="#00e5ff"/><circle cx="70" cy="32" r="2" fill="#00e5ff"/></svg>`},
+  { id:'cyborg', name:'Cyborg', isAI:true, svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="26" ry="32" fill="#f0d0b0"/><path d="M 24 44 Q 26 18 50 16 L 50 86 Q 30 86 24 70 Z" fill="#3a2a1a"/><path d="M 50 20 Q 76 22 76 44 L 76 72 Q 76 86 50 86 Z" fill="#8a96a2"/><circle cx="38" cy="52" r="4" fill="#fff"/><circle cx="38" cy="52" r="2" fill="#3a7ac4"/><rect x="58" y="42" width="14" height="5" rx="1" fill="#0a0a0a"/><circle cx="65" cy="44.5" r="1.8" fill="#ff2e88"/><line x1="56" y1="58" x2="72" y2="58" stroke="#00e5ff" stroke-width="1"/><line x1="56" y1="64" x2="72" y2="64" stroke="#00e5ff" stroke-width="1"/><line x1="56" y1="70" x2="72" y2="70" stroke="#00e5ff" stroke-width="1"/></svg>`},
+  { id:'hologram', name:'Hologramme', isAI:true, svg:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="26" ry="34" fill="#00e5ff" opacity="0.22"/><ellipse cx="50" cy="54" rx="26" ry="34" fill="none" stroke="#00e5ff" stroke-width="1.5" opacity="0.75"/><line x1="24" y1="36" x2="76" y2="36" stroke="#00e5ff" stroke-width="0.9" opacity="0.7"/><line x1="24" y1="46" x2="76" y2="46" stroke="#00e5ff" stroke-width="0.9" opacity="0.7"/><line x1="24" y1="56" x2="76" y2="56" stroke="#00e5ff" stroke-width="0.9" opacity="0.7"/><line x1="24" y1="66" x2="76" y2="66" stroke="#00e5ff" stroke-width="0.9" opacity="0.7"/><line x1="24" y1="76" x2="76" y2="76" stroke="#00e5ff" stroke-width="0.9" opacity="0.7"/><ellipse cx="38" cy="50" rx="4" ry="5" fill="#00e5ff"/><ellipse cx="62" cy="50" rx="4" ry="5" fill="#00e5ff"/><ellipse cx="50" cy="94" rx="22" ry="3" fill="#00e5ff" opacity="0.35"/></svg>`},
+  { id:'drone-ai', name:'Drone-IA', isAI:true, svg:`<svg viewBox="0 0 100 100"><ellipse cx="24" cy="28" rx="14" ry="3" fill="#8a96a2" opacity="0.6"/><ellipse cx="76" cy="28" rx="14" ry="3" fill="#8a96a2" opacity="0.6"/><line x1="24" y1="28" x2="38" y2="44" stroke="#5a6a7a" stroke-width="2.5"/><line x1="76" y1="28" x2="62" y2="44" stroke="#5a6a7a" stroke-width="2.5"/><ellipse cx="50" cy="60" rx="26" ry="20" fill="#5a6a7a"/><ellipse cx="50" cy="60" rx="26" ry="20" fill="none" stroke="#3a4a5a" stroke-width="1.5"/><circle cx="50" cy="58" r="10" fill="#0a0a0a"/><circle cx="50" cy="58" r="6" fill="#ff2e88" opacity="0.9"/><circle cx="50" cy="58" r="2.5" fill="#fff" opacity="0.85"/></svg>`}
+];
+
+const COLORS = ['#ff2e88','#00e5ff','#b026ff','#00ff9d','#ffd400','#ff6b35','#7b61ff','#00d4ff'];
+const DANCE_STYLES = ['bounce','sway','spin','headbang','robot','shuffle'];
+const MAX_CHAT_MESSAGES = 80;
+const MAX_MESSAGE_LENGTH = 200;
+const QUICK_EMOJIS = ['🔥','🎶','💜','😂','😎','👋','✨','🛸','🤖','🎤'];
+
+const NPC_PHRASES = {
+  ambiance: ["Ce son est cosmique 🔥","Qui veut danser avec moi ?","L'ambiance est incroyable ici !","J'adore cette fréquence 🎶","Encore ! Encore ! 🎧","On est bien au Nexus 🛸"],
+  reactions: ["Banger 🎶","🔥🔥🔥","Ça envoie du lourd 🚀","Yes !","💜💜💜","Trop bien 😎"],
+  questions: ["Qui a vu mon vaisseau garé dehors ?","Quelqu'un a apporté du jus de comète ?","On danse ou on danse ?","Y'a un after prévu sur Kepler ?"],
+  taquineries: ["Tu danses vraiment comme un humain 😂","Beau costume M.I.B. !","Hé les Greys, on vous voit 👀","Les IA volent la vedette 🤖"],
+  rap: ["Yo ! Ça c'est du flow 🎤","Le beat est lourd 🔥","Qui a les punchlines ?","C'est chaud ce son 💯"],
+  techno: ["Ça monte ! 🎧","La bassline est folle 🎛️","Ce drop 💥","Je plane complètement 🛸"],
+  rock: ["Le riff est énorme 🎸","Ça headbang ! 🤘","C'est du lourd ce son 🔥","Solo de guitare épique 🎸","Le batteur est en feu 🥁","Rock'n'roll !!! ⚡"],
+  temple: ["528 Hz pour réparer l'ADN 🧬","Cette fréquence me traverse ✨","963 Hz pour l'éveil 🌟","432 Hz, l'harmonie naturelle 🎵","Je médite sur ce son 🔮","Belle résonance ce soir 🌙","Mon âme vibre 🕊️","639 Hz pour les relations 💜","852 Hz, l'intuition s'ouvre 👁️","396 Hz, je libère 🌊","741 Hz, je m'éveille 🌅","174 Hz contre la douleur 💆","Je sens les vibrations dans mes chakras 🌈","Que la paix soit sur ce son 🕉️"],
+  lounge: ["Ambiance parfaite 🌌","Quelqu'un pour un slow ?","Trop chill ici 🌙","Je prends un verre de pulsar 🍹"]
+};
+
+const SACRED_FREQUENCIES = [
+  { hz: 174, label: '174 Hz', desc: 'Anti-douleur',   sym: 'Vesica Piscis',    videoId: 'rQqY4LzHz9k' },
+  { hz: 285, label: '285 Hz', desc: 'Régénération',   sym: 'Triquetra',        videoId: 'Qpe6J0cXMg0' },
+  { hz: 396, label: '396 Hz', desc: 'Libération',     sym: 'Tétraktys',        videoId: 'bVmS2_XXu7U' },
+  { hz: 417, label: '417 Hz', desc: 'Changement',     sym: 'Spirale φ',        videoId: 'oGpmFTg2X9o' },
+  { hz: 432, label: '432 Hz', desc: 'Harmonie',       sym: 'Fleur de Vie',     videoId: '1ZYbU82GVz4' },
+  { hz: 528, label: '528 Hz', desc: 'ADN · Amour',    sym: 'Graine de Vie',    videoId: 'W8DM7tL8_9E' },
+  { hz: 639, label: '639 Hz', desc: 'Relations',      sym: 'Vesica entrelacée',videoId: 'LzJ6wkPNUn4' },
+  { hz: 741, label: '741 Hz', desc: 'Expression',     sym: 'Merkaba',          videoId: 'Fxxz4HbLQjw' },
+  { hz: 852, label: '852 Hz', desc: 'Intuition',      sym: 'Sri Yantra',       videoId: 'fLpmd1SlJX8' },
+  { hz: 963, label: '963 Hz', desc: 'Éveil · Divine', sym: 'Métatron',         videoId: 'c7bLLfFRQrg' },
+];
+
+const FREQ_COLORS = { 174:'#ff6b9d', 285:'#00ff9d', 396:'#ffb347', 417:'#00e5ff', 432:'#c084fc', 528:'#00ff88', 639:'#ff2e88', 741:'#4a9eff', 852:'#a855f7', 963:'#ffd700' };
+const FREQ_MOTIFS = { 174:'motif-vesica', 285:'motif-triquetra', 396:'motif-tetraktys', 417:'motif-fibonacci', 432:'motif-fleur-de-vie', 528:'motif-graine-de-vie', 639:'motif-vesica-relations', 741:'motif-merkaba', 852:'motif-sri-yantra', 963:'motif-metatron' };
+
+const svgNS = 'http://www.w3.org/2000/svg';
+
+function buildFleurDeVie() {
+  const r = 32, cx = 200, cy = 200;
+  const g1 = document.getElementById('fleur-ring-1');
+  const g2 = document.getElementById('fleur-ring-2');
+  const g3 = document.getElementById('fleur-ring-3');
+  if (!g1) return;
+  const makeC = (x, y) => { const c = document.createElementNS(svgNS, 'circle'); c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', r); return c; };
+  g1.appendChild(makeC(cx, cy));
+  for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2 - Math.PI / 2; g2.appendChild(makeC(cx + Math.cos(a) * r, cy + Math.sin(a) * r)); }
+  for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; g3.appendChild(makeC(cx + Math.cos(a) * r * 2, cy + Math.sin(a) * r * 2)); }
+}
+
+function buildGraineDeVie() {
+  const r = 30, cx = 200, cy = 200;
+  const g6 = document.getElementById('graine-6');
+  const g12 = document.getElementById('graine-12');
+  if (!g6) return;
+  const makeC = (x, y, op = 1) => { const c = document.createElementNS(svgNS, 'circle'); c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', r); c.setAttribute('opacity', op); return c; };
+  g6.appendChild(makeC(cx, cy));
+  for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2 - Math.PI / 2; g6.appendChild(makeC(cx + Math.cos(a) * r, cy + Math.sin(a) * r)); }
+  for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; g12.appendChild(makeC(cx + Math.cos(a) * r * 2, cy + Math.sin(a) * r * 2, 0.85)); }
+}
+
+function buildMetatron() {
+  const r = 55, cx = 200, cy = 200;
+  const gC = document.getElementById('metatron-circles');
+  const gL = document.getElementById('metatron-lines');
+  if (!gC) return;
+  const centers = [{ x: cx, y: cy }];
+  for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2 - Math.PI / 2; centers.push({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r }); }
+  for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2 - Math.PI / 2 + Math.PI / 6; centers.push({ x: cx + Math.cos(a) * r * 1.732, y: cy + Math.sin(a) * r * 1.732 }); }
+  centers.forEach(c => { const circle = document.createElementNS(svgNS, 'circle'); circle.setAttribute('cx', c.x); circle.setAttribute('cy', c.y); circle.setAttribute('r', r); gC.appendChild(circle); });
+  for (let i = 0; i < centers.length; i++) { for (let j = i + 1; j < centers.length; j++) { const line = document.createElementNS(svgNS, 'line'); line.setAttribute('x1', centers[i].x); line.setAttribute('y1', centers[i].y); line.setAttribute('x2', centers[j].x); line.setAttribute('y2', centers[j].y); gL.appendChild(line); } }
+}
+
+function buildParticles(count = 22) {
+  const container = document.getElementById('floating-particles');
+  if (!container) return;
+  container.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.top = (75 + Math.random() * 25) + '%';
+    p.style.animationDuration = (7 + Math.random() * 8) + 's';
+    p.style.animationDelay = (Math.random() * 8) + 's';
+    const size = 2 + Math.random() * 2.5;
+    p.style.width = size + 'px'; p.style.height = size + 'px';
+    container.appendChild(p);
+  }
+}
+
+function buildWaves(count = 3) {
+  const container = document.getElementById('waves-container');
+  if (!container) return;
+  container.innerHTML = '';
+  for (let i = 0; i < count; i++) { const w = document.createElement('div'); w.className = 'wave'; w.style.animationDelay = (i * 0.8) + 's'; container.appendChild(w); }
+}
+
+function activateMotifForHz(hz) {
+  document.querySelectorAll('#temple-decor .motif').forEach(m => m.classList.remove('active'));
+  const id = FREQ_MOTIFS[hz] || 'motif-fleur-de-vie';
+  const motif = document.getElementById(id);
+  if (motif) motif.classList.add('active');
+}
+
+function setTempleFreqColor(hz) {
+  const decor = document.getElementById('temple-decor');
+  if (!decor) return;
+  const color = FREQ_COLORS[hz] || '#c084fc';
+  decor.style.color = color;
+  const hzEl = document.getElementById('temple-hz');
+  if (hzEl) {
+    const freq = SACRED_FREQUENCIES.find(f => f.hz === hz);
+    hzEl.querySelector('.hz-value').textContent = freq ? freq.hz : '432';
+    hzEl.querySelector('.hz-label').textContent = freq ? freq.desc : 'Harmonie';
+  }
+  activateMotifForHz(hz);
+}
+
+function updateTempleDecor() {
+  const decor = document.getElementById('temple-decor');
+  if (!decor) return;
+  const isTemple = state.currentRoom === 'temple';
+  decor.classList.toggle('hidden', !isTemple);
+  if (!isTemple) return;
+  const room = currentRoom();
+  const currentVid = room.currentTrack?.videoId;
+  const freq = SACRED_FREQUENCIES.find(f => f.videoId === currentVid);
+  const hz = freq ? freq.hz : 432;
+  setTempleFreqColor(hz);
+}
+
+const CHANNEL_NAME = 'nexus-club-rooms-v2';
+const STORAGE_USER = 'nexus_user_v7';
+const BROADCAST_HEARTBEAT = 4000;
+const USER_TIMEOUT = 12000;
+
+const state = {
+  user: null,
+  users: {},
+  currentRoom: 'rap',
+  rooms: {
+    rap:      { djId:null, currentTrack:null, isPlaying:false, chatMessages:[] },
+    techno:   { djId:null, currentTrack:null, isPlaying:false, chatMessages:[] },
+    rock:     { djId:null, currentTrack:null, isPlaying:false, chatMessages:[] },
+    temple:   { djId:null, currentTrack:null, isPlaying:false, chatMessages:[] },
+    ambiance: { djId:null, currentTrack:null, isPlaying:false, chatMessages:[] },
+  },
+  player: null,
+  ytReady: false,
+  pendingVideo: null,
+  toastTimeout: null,
+  unreadByRoom: { rap:0, techno:0, rock:0, temple:0, ambiance:0 },
+  chatOpen: window.innerWidth > 900,
+};
+
+const channel = new BroadcastChannel(CHANNEL_NAME);
+const $ = (id) => document.getElementById(id);
+const rand = (a) => a[Math.floor(Math.random() * a.length)];
+const uid = () => 'u-' + Math.random().toString(36).slice(2, 10);
+const getRaceById = (id) => RACES.find(r => r.id === id) || RACES[0];
+const currentRoom = () => state.rooms[state.currentRoom];
+const currentRoomDef = () => getRoom(state.currentRoom);
+
+function showToast(msg, dur = 2500) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('visible');
+  clearTimeout(state.toastTimeout);
+  state.toastTimeout = setTimeout(() => t.classList.remove('visible'), dur);
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
+function renderLogin() {
+  const rp = $('room-picker-login');
+  rp.innerHTML = ROOMS.map((r, i) => `<button class="room-btn-login${i === 0 ? ' selected' : ''}" data-room="${r.id}" style="border-color:${r.primary};${i === 0 ? 'background:linear-gradient(135deg,'+r.primary+','+r.secondary+');' : ''}"><span class="r-emoji">${r.emoji}</span><span>${r.name}</span></button>`).join('');
+  rp.querySelectorAll('.room-btn-login').forEach(b => {
+    b.addEventListener('click', () => {
+      rp.querySelectorAll('.room-btn-login').forEach(x => { x.classList.remove('selected'); x.style.background = ''; x.style.borderColor = getRoom(x.dataset.room).primary; });
+      b.classList.add('selected');
+      const r = getRoom(b.dataset.room);
+      b.style.background = `linear-gradient(135deg,${r.primary},${r.secondary})`;
+    });
+  });
+
+  const picker = $('race-picker');
+  const humans = RACES.filter(r => r.isHuman);
+  const aliens = RACES.filter(r => !r.isHuman && !r.isAI);
+  const ais = RACES.filter(r => r.isAI);
+  let html = '<div class="race-section-title">🌍 Humains · 5</div>';
+  humans.forEach((r, i) => { html += `<button class="race-btn${i === 0 ? ' selected' : ''}" data-race="${r.id}" title="${r.name}">${r.svg}<span class="race-tag">${r.name}</span></button>`; });
+  html += '<div class="race-section-title alien">🛸 Extraterrestres · 26</div>';
+  aliens.forEach(r => { html += `<button class="race-btn" data-race="${r.id}" title="${r.name}">${r.svg}<span class="race-tag">${r.name}</span></button>`; });
+  html += '<div class="race-section-title ai">🤖 IA · 6</div>';
+  ais.forEach(r => { html += `<button class="race-btn" data-race="${r.id}" title="${r.name}">${r.svg}<span class="race-tag">${r.name}</span></button>`; });
+  picker.innerHTML = html;
+   picker.querySelectorAll('.race-btn').forEach(b => { b.addEventListener('click', () => { picker.querySelectorAll('.race-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); }); });
+
+  const cp = $('color-picker');
+  cp.innerHTML = COLORS.map((c, i) => `<button class="color-btn${i === 0 ? ' selected' : ''}" data-color="${c}" style="background:${c}; color:${c}"></button>`).join('');
+  cp.querySelectorAll('.color-btn').forEach(b => { b.addEventListener('click', () => { cp.querySelectorAll('.color-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); }); });
+
+  const eq = $('emoji-quick');
+  eq.innerHTML = QUICK_EMOJIS.map(e => `<button data-emoji="${e}">${e}</button>`).join('');
+  eq.querySelectorAll('button').forEach(b => { b.addEventListener('click', () => { const inp = $('chat-input'); inp.value += b.dataset.emoji; inp.focus(); }); });
+}
+
+function restoreUser() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_USER) || 'null');
+    if (saved && saved.name && saved.raceId && saved.color && saved.room) {
+      $('nickname').value = saved.name;
+      setTimeout(() => {
+        document.querySelectorAll('.room-btn-login').forEach(b => { const isSel = b.dataset.room === saved.room; b.classList.toggle('selected', isSel); if (isSel) { const r = getRoom(saved.room); b.style.background = `linear-gradient(135deg,${r.primary},${r.secondary})`; } });
+        document.querySelectorAll('.race-btn').forEach(b => b.classList.toggle('selected', b.dataset.race === saved.raceId));
+        document.querySelectorAll('.color-btn').forEach(b => b.classList.toggle('selected', b.dataset.color === saved.color));
+      }, 50);
+    }
+  } catch (e) {}
+}
+
+function getSelectedRoom() { return document.querySelector('.room-btn-login.selected')?.dataset.room || 'rap'; }
+function getSelectedRaceId() { return document.querySelector('.race-btn.selected')?.dataset.race || RACES[0].id; }
+function getSelectedColor() { return document.querySelector('.color-btn.selected')?.dataset.color || COLORS[0]; }
+
+function enterClub() {
+  const name = $('nickname').value.trim();
+  if (!name) { showToast('Choisis un pseudo !'); return; }
+  const user = { id: uid(), name, raceId: getSelectedRaceId(), color: getSelectedColor(), room: getSelectedRoom(), liked: false, danceStyle: rand(DANCE_STYLES), styleChangeAt: 0, lastSeen: Date.now(), isNPC: false };
+  try { localStorage.setItem(STORAGE_USER, JSON.stringify({ name: user.name, raceId: user.raceId, color: user.color, room: user.room })); } catch (e) {}
+  state.user = user;
+  state.users[user.id] = user;
+  state.currentRoom = user.room;
+  spawnNPCs();
+  $('login-screen').classList.add('hidden');
+  $('club-screen').classList.remove('hidden');
+  $('user-badge').innerHTML = `${getRaceById(user.raceId).svg}<span>${escapeHtml(user.name)}</span>`;
+  $('user-badge').style.borderColor = user.color;
+  applyRoomTheme();
+  initYTPlayer();
+  renderRoomTabs();
+  positionAndRender();
+  updateVibe();
+  updateDJUI();
+  updateLikeBtn();
+  broadcast({ type: 'join', user: publicUser(user) });
+  broadcast({ type: 'state-request', from: user.id });
+  startHeartbeat();
+  startCleanupLoop();
+  startNPCAnimations();
+  startNPCChatter();
+  showToast(`Bienvenue en salle ${currentRoomDef().name} ${currentRoomDef().emoji}`);
+}
+
+function spawnNPCs() {
+  const names = ['Luna','Kai','Nova','Zed','Maya','Rex','Iris','Echo'];
+  const raceIds = RACES.map(r => r.id);
+  const colors = ['#00e5ff','#ff2e88','#b026ff','#00ff9d','#ffd400','#ff6b35','#7b61ff','#00d4ff'];
+  const npcRooms = ['rap','rap','techno','techno','rock','temple','temple','ambiance'];
+  for (let i = 0; i < 8; i++) {
+    const id = 'npc-' + i;
+    state.users[id] = { id, name: names[i], raceId: raceIds[Math.floor(i * raceIds.length / 8)], color: colors[i], room: npcRooms[i], liked: false, danceStyle: rand(DANCE_STYLES), styleChangeAt: 0, isNPC: true, lastSeen: Infinity };
+  }
+}
+
+function publicUser(u) { return { id:u.id, name:u.name, raceId:u.raceId, color:u.color, room:u.room }; }
+
+function renderRoomTabs() {
+  const container = $('room-tabs');
+  container.innerHTML = ROOMS.map(r => {
+    const room = state.rooms[r.id];
+    const count = Object.values(state.users).filter(u => u.room === r.id).length;
+    const isDJ = !!room.djId;
+    const isPlaying = room.isPlaying && room.currentTrack;
+    const active = r.id === state.currentRoom;
+    return `<button class="room-tab${active ? ' active' : ''}" data-room="${r.id}" style="--tab-color-a:${r.primary};--tab-color-b:${r.secondary};--tab-glow:${r.glow};">
+      ${isDJ ? '<span class="tab-dj">🎧</span>' : ''}
+      <span class="tab-emoji">${r.emoji}</span>
+      <span class="tab-name">${r.name}</span>
+      <span class="tab-count">${count} · ${r.tagline}</span>
+      ${isPlaying ? '<div class="tab-playing"><span></span><span></span><span></span></div>' : ''}
+    </button>`;
+  }).join('');
+  container.querySelectorAll('.room-tab').forEach(b => { b.addEventListener('click', () => switchRoom(b.dataset.room)); });
+}
+
+function switchRoom(roomId) {
+  if (roomId === state.currentRoom || !state.user || !state.rooms[roomId]) return;
+  state.user.room = roomId;
+  state.currentRoom = roomId;
+  state.unreadByRoom[roomId] = 0;
+  broadcast({ type: 'room-change', userId: state.user.id, room: roomId });
+  applyRoomTheme();
+  renderRoomTabs();
+  positionAndRender();
+  updateVibe();
+  updateDJUI();
+  updateLikeBtn();
+  renderChat();
+  updateUnreadBadge();
+  const room = state.rooms[roomId];
+  if (room.currentTrack && room.djId) loadVideo(room.currentTrack.videoId, true, 0);
+  else stopVideoSilent();
+  showToast(`${currentRoomDef().emoji} Salle ${currentRoomDef().name}`);
+}
+
+function applyRoomTheme() {
+  const r = currentRoomDef();
+  document.documentElement.style.setProperty('--room-primary', r.primary);
+  document.documentElement.style.setProperty('--room-secondary', r.secondary);
+  $('room-indicator').querySelector('.room-name').textContent = r.name;
+  $('chat-room-badge').textContent = r.name;
+  $('dj-empty-text').textContent = `🎧 Aucun DJ dans la salle ${r.name}…`;
+  $('yt-url').placeholder = `Colle une URL YouTube pour la salle ${r.name}…`;
+  updateTempleDecor();
+  updateFreqVisibility();
+}
+
+function positionAndRender() {
+  const all = Object.values(state.users).filter(u => u.room === state.currentRoom);
+  const N = Math.max(all.length, 1);
+  const container = $('avatars-container');
+  const existing = new Map();
+  container.querySelectorAll('.avatar').forEach(el => existing.set(el.dataset.id, el));
+  all.forEach((u, i) => {
+    const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
+    const rx = 34, ry = 34;
+    const x = 50 + Math.cos(angle) * rx;
+    const y = 50 + Math.sin(angle) * ry;
+    let el = existing.get(u.id);
+    if (!el) { el = document.createElement('div'); el.className = 'avatar'; el.dataset.id = u.id; container.appendChild(el); }
+    const race = getRaceById(u.raceId);
+    const key = u.raceId + '|' + u.name + '|' + u.color;
+    if (el.dataset.key !== key) {
+      el.dataset.key = key;
+      el.innerHTML = `<div class="avatar-circle" style="border-color:${u.color}">${race.svg}</div><div class="avatar-name" style="color:${u.color}">${escapeHtml(u.name)}</div>`;
+    }
+    el.style.left = x + '%'; el.style.top = y + '%';
+    const circle = el.querySelector('.avatar-circle');
+    circle.style.borderColor = u.color;
+    circle.style.boxShadow = u.liked ? `0 0 25px ${u.color}, 0 0 40px ${u.color}66` : 'none';
+    const room = state.rooms[u.room];
+    const isDancing = u.liked && room.isPlaying;
+    el.classList.toggle('dancing', isDancing);
+    el.classList.toggle('idle', !isDancing);
+    el.dataset.style = u.danceStyle;
+  });
+  existing.forEach((el, id) => { const u = state.users[id]; if (!u || u.room !== state.currentRoom) el.remove(); });
+}
+
+function updateVibe() {
+  const all = Object.values(state.users).filter(u => u.room === state.currentRoom);
+  const room = currentRoom();
+  const dancing = all.filter(u => u.liked && room.isPlaying).length;
+  $('vibe-meter').querySelector('strong').textContent = dancing;
+  $('vibe-total').textContent = all.length;
+  const bars = $('vibe-bars');
+  const total = 10;
+  const on = Math.round((dancing / Math.max(all.length, 1)) * total);
+  if (bars.children.length !== total) bars.innerHTML = Array.from({length: total}, (_, i) => `<span style="height:${8 + (i % 3) * 3}px"></span>`).join('');
+  Array.from(bars.children).forEach((b, i) => b.classList.toggle('on', i < on));
+  $('clubbers-list').innerHTML = all.map(u => {
+    const dancing = u.liked && room.isPlaying;
+    const race = getRaceById(u.raceId);
+    return `<div class="clubber-chip${dancing ? ' dancing' : ''}" style="border-color:${dancing ? u.color : ''}" title="${escapeHtml(u.name)} — ${race.name}">${race.svg}<span>${escapeHtml(u.name)}${u.id === state.user?.id ? ' ★' : ''}</span></div>`;
+  }).join('');
+}
+
+function toggleLike() {
+  const room = currentRoom();
+  if (!room.currentTrack || !state.user) return;
+  const u = state.user;
+  u.liked = !u.liked;
+  if (u.liked) { u.danceStyle = rand(DANCE_STYLES); u.styleChangeAt = Date.now(); }
+  broadcast({ type: 'like', userId: u.id, liked: u.liked, style: u.danceStyle, room: u.room });
+  updateLikeBtn(); positionAndRender(); updateVibe();
+}
+
+function updateLikeBtn() {
+  const btn = $('like-btn');
+  const u = state.user;
+  const room = currentRoom();
+  const on = !!room.currentTrack;
+  btn.disabled = !on;
+  btn.classList.toggle('liked', on && u?.liked);
+  $('like-icon').textContent = on && u?.liked ? '♥' : '♡';
+  $('like-label').textContent = on ? (u?.liked ? 'Tu kiffes ce son' : "J'aime ce son") : "En attente d'un son…";
+}
+
+function initYTPlayer() {
+  if (state.player) return;
+  if (!state.ytReady || !window.YT || !window.YT.Player) { setTimeout(initYTPlayer, 200); return; }
+  state.player = new YT.Player('yt-player', {
+    height: '100%', width: '100%', videoId: '',
+    playerVars: { autoplay: 0, controls: 1, modestbranding: 1, rel: 0, playsinline: 1 },
+    events: { onReady: () => { if (state.pendingVideo) loadVideo(state.pendingVideo, false); }, onStateChange: onPlayerStateChange }
+  });
+}
+window.onYouTubeIframeAPIReady = function () { state.ytReady = true; if (state.user) initYTPlayer(); };
+
+function onPlayerStateChange(e) {
+  const playing = (e.data === 1);
+  const room = currentRoom();
+  if (state.user?.id === room.djId && state.currentRoom === state.user.room) {
+    room.isPlaying = playing;
+    $('dance-floor').classList.toggle('playing', playing);
+    const templeDecor = document.getElementById('temple-decor');
+    if (templeDecor) templeDecor.classList.toggle('playing', playing);
+    if (playing) {
+      Object.values(state.users).forEach(u => { if (u.isNPC && u.room === state.currentRoom) { u.liked = Math.random() < 0.7; u.danceStyle = rand(DANCE_STYLES); } });
+      broadcast({ type: 'room-playing', roomId: state.currentRoom, isPlaying: playing });
+      positionAndRender(); updateVibe(); renderRoomTabs();
+      setTimeout(() => npcSays(rand(['ambiance', state.currentRoom])), 1500);
+    } else {
+      broadcast({ type: 'room-playing', roomId: state.currentRoom, isPlaying: false });
+      positionAndRender(); updateVibe(); renderRoomTabs();
+    }
+  }
+}
+
+function extractVideoId(url) {
+  if (!url) return null;
+  url = url.trim();
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+function becomeDJ() {
+  const room = currentRoom();
+  if (room.djId && room.djId !== state.user.id) { showToast('Il y a déjà un DJ dans cette salle !'); return; }
+  room.djId = state.user.id;
+  updateDJUI(); renderRoomTabs();
+  broadcast({ type: 'dj', roomId: state.currentRoom, userId: state.user.id });
+  addSystemMessage(`${state.user.name} prend les platines 🎧`);
+  showToast(`🎧 Tu es le DJ de la salle ${currentRoomDef().name} !`);
+}
+
+function leaveDJ() {
+  const room = currentRoom();
+  if (room.djId !== state.user.id) return;
+  const name = state.user.name;
+  room.djId = null; room.currentTrack = null; room.isPlaying = false;
+  updateDJUI(); renderRoomTabs();
+  broadcast({ type: 'dj', roomId: state.currentRoom, userId: null });
+  broadcast({ type: 'stop', roomId: state.currentRoom });
+  addSystemMessage(`${name} quitte les platines`);
+}
+
+function loadVideo(videoId, fromRemote = false, positionSec = 0) {
+  const room = currentRoom();
+  room.currentTrack = { videoId };
+  if (!state.player) { state.pendingVideo = videoId; return; }
+  state.player.loadVideoById(videoId, positionSec);
+  Object.values(state.users).forEach(u => { if (u.room === state.currentRoom) { u.liked = u.isNPC ? Math.random() < 0.7 : false; u.danceStyle = rand(DANCE_STYLES); } });
+  positionAndRender(); updateVibe(); updateLikeBtn(); renderRoomTabs();
+  $('track-info').textContent = '♪ Son en cours — ' + videoId;
+  $('track-info').classList.add('playing');
+  if (state.currentRoom === 'temple') { renderFreqButtons(); updateTempleDecor(); }
+  if (!fromRemote) broadcast({ type: 'track', roomId: state.currentRoom, videoId, positionSec, djId: room.djId });
+}
+
+function stopVideoSilent() {
+  if (state.player && state.player.stopVideo) state.player.stopVideo();
+  $('dance-floor').classList.remove('playing');
+  $('track-info').textContent = 'Aucun son en cours';
+  $('track-info').classList.remove('playing');
+  const templeDecor = document.getElementById('temple-decor');
+  if (templeDecor) templeDecor.classList.remove('playing');
+  updateLikeBtn();
+}
+
+function stopVideo() {
+  const room = currentRoom();
+  stopVideoSilent();
+  room.currentTrack = null; room.isPlaying = false;
+  Object.values(state.users).forEach(u => { if (u.room === state.currentRoom) u.liked = false; });
+  positionAndRender(); updateVibe(); renderRoomTabs();
+}
+
+function playTrackAsDJ() {
+  const room = currentRoom();
+  if (room.djId !== state.user.id) return;
+  const vid = extractVideoId($('yt-url').value);
+  if (!vid) { showToast('URL YouTube invalide'); return; }
+  loadVideo(vid, false, 0);
+  $('yt-url').value = '';
+  showToast(`▶ Son lancé en salle ${currentRoomDef().name}`);
+}
+
+function updateDJUI() {
+  const room = currentRoom();
+  const isDJ = room.djId === state.user?.id;
+  const someoneIsDJ = !!room.djId;
+  $('dj-empty').classList.toggle('hidden', someoneIsDJ);
+  $('dj-active').classList.toggle('hidden', !someoneIsDJ);
+  if (someoneIsDJ && state.users[room.djId]) { $('dj-badge').style.display = 'flex'; $('dj-badge-name').textContent = state.users[room.djId].name + ' · ' + currentRoomDef().name; }
+  else { $('dj-badge').style.display = 'none'; }
+  $('play-track').disabled = !isDJ;
+  $('stop-track').disabled = !isDJ;
+  $('leave-dj').style.display = isDJ ? '' : 'none';
+  $('yt-url').disabled = !isDJ;
+  $('yt-url').placeholder = isDJ ? `Colle une URL pour la salle ${currentRoomDef().name}…` : '🔒 Seul le DJ de cette salle peut choisir';
+  if (state.currentRoom === 'temple') renderFreqButtons();
+}
+
+function renderFreqButtons() {
+  const container = $('freq-buttons');
+  if (!container) return;
+  const isTemple = state.currentRoom === 'temple';
+  const room = currentRoom();
+  const isDJ = room.djId === state.user?.id;
+  const currentVid = room.currentTrack?.videoId;
+  container.innerHTML = SACRED_FREQUENCIES.map(f => {
+    const playing = currentVid === f.videoId;
+    return `<button class="freq-btn${playing ? ' playing' : ''}" data-vid="${f.videoId}" ${!isDJ ? 'disabled' : ''} title="${f.sym}"><span class="freq-hz">${f.label}</span><span class="freq-desc">${f.desc}</span><span class="freq-sym">${f.sym}</span></button>`;
+  }).join('');
+  if (!isTemple || !isDJ) return;
+  container.querySelectorAll('.freq-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const vid = btn.dataset.vid;
+      const freq = SACRED_FREQUENCIES.find(f => f.videoId === vid);
+      if (!freq) return;
+      loadVideo(vid, false, 0);
+      showToast(`✨ ${freq.label} — ${freq.desc}`);
+      renderFreqButtons();
+    });
+  });
+}
+
+function updateFreqVisibility() {
+  const el = $('freq-presets');
+  if (!el) return;
+  const isTemple = state.currentRoom === 'temple';
+  el.classList.toggle('hidden', !isTemple);
+  if (isTemple) renderFreqButtons();
+}
+
+function formatTime(ts) { const d = new Date(ts); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+function addChatMessage(roomId, msg) {
+  const room = state.rooms[roomId];
+  if (!room) return;
+  room.chatMessages.push(msg);
+  if (room.chatMessages.length > MAX_CHAT_MESSAGES) room.chatMessages = room.chatMessages.slice(-MAX_CHAT_MESSAGES);
+  if (roomId === state.currentRoom) renderChat();
+}
+function addSystemMessage(text) { addChatMessage(state.currentRoom, { id:'sys-'+Date.now()+Math.random(), system:true, text, ts:Date.now() }); }
+
+function renderChat() {
+  const container = $('chat-messages');
+  const room = currentRoom();
+  const html = room.chatMessages.map(m => {
+    if (m.system) return `<div class="chat-system">${escapeHtml(m.text)}</div>`;
+    const race = getRaceById(m.raceId);
+    const isSelf = m.userId === state.user?.id;
+    const emojiOnly = /^[\p{Emoji}\s]+$/u.test(m.text) && m.text.length <= 8;
+    return `<div class="chat-msg ${isSelf ? 'self' : ''}"><div class="chat-avatar" style="border-color:${m.color}">${race.svg}</div><div class="chat-bubble-wrap"><div class="chat-name" style="color:${m.color}">${escapeHtml(m.name)}${isSelf ? ' ★' : ''}</div><div class="chat-bubble ${emojiOnly ? 'emoji-only' : ''}">${escapeHtml(m.text)}</div><div class="chat-time">${formatTime(m.ts)}</div></div></div>`;
+  }).join('');
+  const wasAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 60;
+  container.innerHTML = html;
+  if (wasAtBottom) container.scrollTop = container.scrollHeight;
+  $('chat-count').textContent = room.chatMessages.filter(m => !m.system).length + ' msg';
+}
+
+function sendChatMessage() {
+  const input = $('chat-input');
+  const text = input.value.trim();
+  if (!text || !state.user) return;
+  if (text.length > MAX_MESSAGE_LENGTH) { showToast('Message trop long (max ' + MAX_MESSAGE_LENGTH + ')'); return; }
+  const msg = { id: 'msg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6), userId: state.user.id, name: state.user.name, raceId: state.user.raceId, color: state.user.color, text, ts: Date.now() };
+  addChatMessage(state.currentRoom, msg);
+  broadcast({ type: 'chat', roomId: state.currentRoom, message: msg });
+  input.value = ''; input.style.height = 'auto'; input.focus();
+}
+
+function npcSays(category) {
+  const npcs = Object.values(state.users).filter(u => u.isNPC && u.room === state.currentRoom);
+  if (!npcs.length) return;
+  const npc = rand(npcs);
+  const pool = NPC_PHRASES[category] || NPC_PHRASES.ambiance;
+  let text = rand(pool);
+  const realUsers = Object.values(state.users).filter(u => !u.isNPC && u.room === state.currentRoom);
+  if (realUsers.length && Math.random() < 0.25) text = `@${rand(realUsers).name} ` + text.toLowerCase();
+  const msg = { id: 'npc-' + Date.now() + Math.random(), userId: npc.id, name: npc.name, raceId: npc.raceId, color: npc.color, text, ts: Date.now() };
+  addChatMessage(state.currentRoom, msg);
+  broadcast({ type: 'chat', roomId: state.currentRoom, message: msg });
+}
+
+function startNPCChatter() {
+  setInterval(() => {
+    if (document.visibilityState !== 'visible') return;
+    if (Math.random() < 0.35) {
+      const room = currentRoom();
+      const categories = ['ambiance','reactions','ambiance','questions','taquineries'];
+      if (room.currentTrack && room.isPlaying) categories.push(state.currentRoom, state.currentRoom);
+      npcSays(rand(categories));
+    }
+  }, 11000 + Math.random() * 4000);
+}
+
+function toggleChat() {
+  state.chatOpen = !state.chatOpen;
+  $('chat-panel').classList.toggle('open', state.chatOpen);
+  if (state.chatOpen) { state.unreadByRoom[state.currentRoom] = 0; updateUnreadBadge(); setTimeout(() => { const c = $('chat-messages'); c.scrollTop = c.scrollHeight; }, 100); }
+}
+
+function updateUnreadBadge() {
+  const badge = $('unread-badge');
+  const total = Object.values(state.unreadByRoom).reduce((a, b) => a + b, 0);
+  if (total > 0 && !state.chatOpen) { badge.textContent = total > 9 ? '9+' : total; badge.classList.remove('hidden'); }
+  else badge.classList.add('hidden');
+}
+
+function broadcast(msg) { try { channel.postMessage(msg); } catch (e) {} }
+
+channel.onmessage = (e) => {
+  const msg = e.data;
+  if (!msg || !msg.type) return;
+  if (msg.userId === state.user?.id && ['like','leave','join','room-change'].includes(msg.type)) return;
+  switch (msg.type) {
+    case 'join': {
+      if (!state.users[msg.user.id]) {
+        state.users[msg.user.id] = { ...msg.user, liked:false, danceStyle:rand(DANCE_STYLES), lastSeen:Date.now(), isNPC:false };
+        renderRoomTabs(); positionAndRender(); updateVibe();
+        if (msg.user.room === state.currentRoom) addSystemMessage(`${msg.user.name} a rejoint la salle`);
+      }
+      broadcast({ type: 'state-request-response', to: msg.user.id, from: state.user?.id,
+        roomsState: {
+          rap: { djId: state.rooms.rap.djId, track: state.rooms.rap.currentTrack, isPlaying: state.rooms.rap.isPlaying },
+          techno: { djId: state.rooms.techno.djId, track: state.rooms.techno.currentTrack, isPlaying: state.rooms.techno.isPlaying },
+          rock: { djId: state.rooms.rock.djId, track: state.rooms.rock.currentTrack, isPlaying: state.rooms.rock.isPlaying },
+          temple: { djId: state.rooms.temple.djId, track: state.rooms.temple.currentTrack, isPlaying: state.rooms.temple.isPlaying },
+          ambiance: { djId: state.rooms.ambiance.djId, track: state.rooms.ambiance.currentTrack, isPlaying: state.rooms.ambiance.isPlaying },
+        },
+        users: Object.values(state.users).filter(u => !u.isNPC).map(publicUser),
+        chat: { rap: state.rooms.rap.chatMessages.slice(-20), techno: state.rooms.techno.chatMessages.slice(-20), rock: state.rooms.rock.chatMessages.slice(-20), temple: state.rooms.temple.chatMessages.slice(-20), ambiance: state.rooms.ambiance.chatMessages.slice(-20) }
+      });
+      break;
+    }
+    case 'leave': {
+      const u = state.users[msg.userId];
+      delete state.users[msg.userId];
+      if (u) { const r = state.rooms[u.room]; if (r && r.djId === msg.userId) { r.djId = null; r.currentTrack = null; r.isPlaying = false; } }
+      renderRoomTabs(); positionAndRender(); updateVibe(); updateDJUI();
+      if (u && u.room === state.currentRoom) addSystemMessage(`${u.name} a quitté la salle`);
+      break;
+    }
+    case 'room-change': { const u = state.users[msg.userId]; if (!u) break; u.room = msg.room; renderRoomTabs(); positionAndRender(); updateVibe(); break; }
+    case 'heartbeat': if (state.users[msg.userId]) state.users[msg.userId].lastSeen = Date.now(); break;
+    case 'like':
+      if (state.users[msg.userId] && msg.room === state.currentRoom) {
+        state.users[msg.userId].liked = msg.liked;
+        state.users[msg.userId].danceStyle = msg.style || state.users[msg.userId].danceStyle;
+        positionAndRender(); updateVibe();
+      }
+      break;
+    case 'dj': { const r = state.rooms[msg.roomId]; if (!r) break; r.djId = msg.userId; renderRoomTabs(); if (msg.roomId === state.currentRoom) updateDJUI(); break; }
+    case 'track': { const r = state.rooms[msg.roomId]; if (!r) break; r.currentTrack = { videoId: msg.videoId }; r.djId = msg.djId || r.djId; renderRoomTabs(); if (msg.roomId === state.currentRoom) loadVideo(msg.videoId, true, msg.positionSec || 0); break; }
+    case 'room-playing': { const r = state.rooms[msg.roomId]; if (!r) break; r.isPlaying = msg.isPlaying; renderRoomTabs(); if (msg.roomId === state.currentRoom) { $('dance-floor').classList.toggle('playing', msg.isPlaying); const td = document.getElementById('temple-decor'); if (td) td.classList.toggle('playing', msg.isPlaying); if (msg.isPlaying) { Object.values(state.users).forEach(u => { if (u.isNPC && u.room === state.currentRoom) u.liked = Math.random() < 0.7; }); positionAndRender(); updateVibe(); } } break; }
+    case 'stop': { const r = state.rooms[msg.roomId]; if (!r) break; r.currentTrack = null; r.isPlaying = false; if (msg.roomId === state.currentRoom) { stopVideoSilent(); Object.values(state.users).forEach(u => { if (u.room === state.currentRoom) u.liked = false; }); positionAndRender(); updateVibe(); updateLikeBtn(); } renderRoomTabs(); break; }
+    case 'chat': {
+      const r = state.rooms[msg.roomId];
+      if (!r) break;
+      if (!r.chatMessages.some(m => m.id === msg.message.id)) {
+        addChatMessage(msg.roomId, msg.message);
+        if (msg.roomId !== state.currentRoom || !state.chatOpen) { state.unreadByRoom[msg.roomId] = (state.unreadByRoom[msg.roomId] || 0) + 1; updateUnreadBadge(); }
+      }
+      break;
+    }
+    case 'state-request-response':
+      if (msg.to !== state.user?.id) return;
+      (msg.users || []).forEach(u => { if (!state.users[u.id]) state.users[u.id] = { ...u, liked:false, danceStyle:rand(DANCE_STYLES), lastSeen:Date.now(), isNPC:false }; });
+      Object.entries(msg.roomsState || {}).forEach(([rid, rs]) => { if (!state.rooms[rid]) return; if (rs.djId) state.rooms[rid].djId = rs.djId; if (rs.track) state.rooms[rid].currentTrack = rs.track; state.rooms[rid].isPlaying = !!rs.isPlaying; });
+      Object.entries(msg.chat || {}).forEach(([rid, msgs]) => { if (!state.rooms[rid]) return; msgs.forEach(m => { if (!state.rooms[rid].chatMessages.some(x => x.id === m.id)) state.rooms[rid].chatMessages.push(m); }); state.rooms[rid].chatMessages.sort((a, b) => a.ts - b.ts); if (state.rooms[rid].chatMessages.length > MAX_CHAT_MESSAGES) state.rooms[rid].chatMessages = state.rooms[rid].chatMessages.slice(-MAX_CHAT_MESSAGES); });
+      const myRoom = state.rooms[state.currentRoom];
+      if (myRoom.currentTrack && myRoom.djId) loadVideo(myRoom.currentTrack.videoId, true, 0);
+      renderRoomTabs(); positionAndRender(); updateVibe(); updateDJUI(); renderChat();
+      break;
+  }
+};
+
+function startHeartbeat() { setInterval(() => { if (!state.user) return; state.user.lastSeen = Date.now(); broadcast({ type: 'heartbeat', userId: state.user.id }); }, BROADCAST_HEARTBEAT); }
+function startCleanupLoop() {
+  setInterval(() => {
+    const now = Date.now();
+    let changed = false;
+    Object.values(state.users).forEach(u => { if (u.isNPC || u.id === state.user?.id) return; if (now - (u.lastSeen || 0) > USER_TIMEOUT) { delete state.users[u.id]; const r = state.rooms[u.room]; if (r && r.djId === u.id) { r.djId = null; r.currentTrack = null; r.isPlaying = false; } changed = true; } });
+    if (changed) { renderRoomTabs(); positionAndRender(); updateVibe(); updateDJUI(); }
+  }, 5000);
+}
+
+function startNPCAnimations() {
+  setInterval(() => {
+    const now = Date.now(); let changed = false;
+    Object.values(state.users).forEach(u => { if (!u.isNPC || !u.liked) return; const room = state.rooms[u.room]; if (!room || !room.isPlaying) return; if (now - u.styleChangeAt > 4000 + Math.random() * 3000) { u.danceStyle = rand(DANCE_STYLES); u.styleChangeAt = now; changed = true; } });
+    if (changed) positionAndRender();
+  }, 1500);
+  setInterval(() => {
+    let changed = false;
+    Object.values(state.users).forEach(u => { if (!u.isNPC) return; const room = state.rooms[u.room]; if (!room || !room.isPlaying) return; if (Math.random() < 0.15) { u.liked = !u.liked; u.danceStyle = rand(DANCE_STYLES); changed = true; } });
+    if (changed) { positionAndRender(); updateVibe(); }
+  }, 3500);
+  setInterval(() => {
+    const npcs = Object.values(state.users).filter(u => u.isNPC);
